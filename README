@@ -1,4 +1,4 @@
-A simple portable Vim keystroke emulation plugin engine targeting for .Net IDEs
+A simple portable Vim keystroke emulation plug-in engine targeting for .Net IDEs
 
 Inspired by VsVim(https://github.com/jaredpar/VsVim), put on some personal thoughts on the design, and reinvent the wheel.
 
@@ -12,8 +12,7 @@ already implemented: 'h', 'H', 'j', 'k', 'l', 'L', '0', '^', '$', 'G', 'w', 'W',
 still in waiting: 'f', 'F', 't', 'T', '*', '#'
 
 Simple Editions
-already implemented: 'u', 'U', 'x', 'X', 'i', 'I', 'a', 'A', 's', 'S', 'o', 'O', 'C', 'D', 'J'
-still in waiting: '.'
+already implemented: '.', 'u', 'U', 'x', 'X', 'i', 'I', 'a', 'A', 's', 'S', 'o', 'O', 'C', 'D', 'J'
 
 Range Editions
 already implemented: 'cX', 'dX', '=X'
