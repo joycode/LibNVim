@@ -437,6 +437,7 @@ namespace VsNVim
             this.Select(from, to);
             if (!_editorOperations.CanDelete) {
                 this.Select(from, from);
+                return;
             }
             _editorOperations.Delete();
         }
@@ -446,6 +447,7 @@ namespace VsNVim
             this.Select(from, to);
             if (!_editorOperations.CanDelete) {
                 this.Select(from, from);
+                return;
             }
 
             bool need_cleanup = (to.X == (_textView.TextSnapshot.LineCount - 1));

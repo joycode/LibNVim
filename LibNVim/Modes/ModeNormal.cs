@@ -43,7 +43,7 @@ namespace LibNVim.Modes
             VimKeyInputEvaluation.KeyEvalState eval_state = _keyInputEvaluation.Evaluate(args.KeyInput, out action);
             if (eval_state == VimKeyInputEvaluation.KeyEvalState.Success) {
                 if (action != null) {
-                    // TODO 因为一些定义的命令尚未实现, 需要做容错处理, 以后可去掉
+                    // TODO live with some actions unimplemented
                     if (action is IVimMotion) {
                         (action as IVimMotion).Move();
                     }

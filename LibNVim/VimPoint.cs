@@ -6,7 +6,7 @@ using System.Text;
 namespace LibNVim
 {
     /// <summary>
-    /// X 坐标代表行, Y 坐标代表列
+    /// X stands line, Y stands column
     /// </summary>
     public class VimPoint
     {

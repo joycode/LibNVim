@@ -47,7 +47,7 @@ namespace VsNVim
         }
 
         /// <summary>
-        /// 永不返回 null
+        /// never return null
         /// </summary>
         /// <param name="wpfTextView"></param>
         /// <returns></returns>

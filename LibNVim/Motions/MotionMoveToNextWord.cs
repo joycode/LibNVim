@@ -7,7 +7,7 @@ using LibNVim.Interfaces;
 namespace LibNVim.Motions
 {
     /// <summary>
-    /// 对应 'w'
+    /// 'w'
     /// </summary>
     class MotionMoveToNextWord : AbstractVimMotion, Interfaces.IVimMotionWordWise
     {
@@ -23,11 +23,6 @@ namespace LibNVim.Motions
             }
 
             return this.Host.CurrentPosition;
-        }
-
-        public override VimPoint MoveInRangeEdition()
-        {
-            return base.MoveInRangeEdition();
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Text;
 namespace LibNVim.Interfaces
 {
     /// <summary>
-    /// 对应 '$'
+    /// '$'
     /// </summary>
     interface IVimMotionEndOfLine : IVimMotionLineWise
     {

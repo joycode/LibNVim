@@ -25,7 +25,7 @@ namespace LibNVim.Interfaces
         void Redo();
 
         /// <summary>
-        /// 文档尾返回 '\0'
+        /// return '\0' at the end of document
         /// </summary>
         /// <returns></returns>
         char GetCharAtCurrentPosition();

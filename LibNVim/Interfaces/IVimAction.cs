@@ -6,7 +6,7 @@ using System.Text;
 namespace LibNVim.Interfaces
 {
     /// <summary>
-    /// vim 中所有动作的抽象, 包括: 光标移动, 修改, 模式切换
+    /// every behaviours in vim: cursor motions, editions, modes switch
     /// </summary>
     public interface IVimAction
     {

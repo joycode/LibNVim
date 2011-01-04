@@ -12,7 +12,7 @@ namespace LibNVim.Modes
     {
         public IVimHost Host { get; private set; }
         /// <summary>
-        /// 导致进入 Insert Mode 的命令
+        /// the reseaon for entering Insert Mode 
         /// </summary>
         public AbstractVimEdition CausedEdition { get; private set; }
         public VimCaretShape CaretShape { get { return VimCaretShape.NormalCaret; } }
@@ -35,7 +35,7 @@ namespace LibNVim.Modes
             this.Host.CurrentMode = PreviousMode;
             this.Host.DismissDisplayWindows();
 
-            // 保持与 Vim 行为的一致
+            // keep consistency with Vim
             new MotionCaretLeft(this.Host, 1).Move();
 
             args.Handled = true;

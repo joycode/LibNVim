@@ -19,13 +19,14 @@ namespace LibNVim.Editions
 
             if (this.Motion is Interfaces.IVimMotionWordWise)
             {
+                // 'w' equals to 'e' here
                 this.Host.MoveToPreviousWord();
                 this.Host.MoveToEndOfWord();
                 to = new VimPoint(this.Host.CurrentPosition.X, this.Host.CurrentPosition.Y + 1);
             }
             else if (this.Motion is Interfaces.IVimMotionEndOfLine) {
-                // 单独处理 '$': 实际位置与要做的操作偏左一个字符位置
-                // 由于 Vim 中除非空行, 末尾光标永远比 LineEnd 少一位, 所以需要额外右移一位
+                // '$' in range edition is a close end span while range edition operates on open end spans,
+                // so a manual compensation is needed
                 this.Host.CaretRight();
                 to = this.Host.CurrentPosition;
             }

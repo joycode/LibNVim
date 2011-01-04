@@ -19,20 +19,5 @@ namespace LibNVim.Motions
         }
 
         public abstract VimPoint Move();
-
-        public virtual VimPoint MoveInRangeEdition()
-        {
-            return this.Move();
-        }
-
-        public virtual VimPoint TestMove()
-        {
-            VimPoint old = this.Host.CurrentPosition;
-            VimPoint ret = this.Move();
-            this.Host.MoveCursor(old);
-
-            return ret;
-        }
-
     }
 }

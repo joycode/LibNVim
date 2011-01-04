@@ -15,7 +15,7 @@ namespace LibNVim
         }
 
         /// <summary>
-        /// 有的命令, 如 'G' 需要区分是默认的数字还是输入的数字
+        /// some command like 'G', have different behaviours between default repeat number and user given number
         /// </summary>
         private class RepeatNumberStore
         {
@@ -47,27 +47,27 @@ namespace LibNVim
         private enum ActionState
         {
             None = 0, 
-            RepeatNumber, // 命令最初的数字, 比如 5j
-            SimpleMotion, // 简单的移动命令, 比如 j
-            SimpleEdition, // 简单的编辑命令, 比如 i
-            RangeEdition, // 识别 cc, dd, yy, ==
-            RepeatNumberInRangeEdition, // 识别 RangeEdition 如 d5w 中的数字
-            Motion_gg, // 识别 gg
-            MotionOfLeftBracket, // 识别 [{, 暂时不支持 [[, 不怎么了解, 用的也不多
-            MotionOfRightBracket, // 识别 ]}
+            RepeatNumber, // outmost repeat number, like "5j"
+            SimpleMotion, // simple motions, like 'j'
+            SimpleEdition, // simple editions, like 'i'
+            RangeEdition, // range editions, like "cc"
+            RepeatNumberInRangeEdition, // repeat number in RangeEdition, like "d5j"
+            Motion_gg, // "gg"
+            MotionOfLeftBracket, // "[{", no plans for "[["
+            MotionOfRightBracket, // "]}", no plans for "]]"
         }
 
         /// <summary>
-        /// 所有的简单移动字符 
-        /// TODO '*' 是否需要独立出来, 有待考虑
+        /// all simple motions plan to support
         /// </summary>
         private static char[] Simple_Motion_Chars = { 'h', 'H', 'j', 'k', 'l', 'L', '0', '^', '$', 'G',
                                                         'w', 'W', 'e', 'E', 'b', 'B', '%', '*' };
         /// <summary>
-        /// 'u' 撤销/'U' 重做
+        /// all simple editions, and 'u' undo/'U' redo, 'p'/'P' for paste
         /// </summary>
         private static char[] Simple_Edition_Chars = { '.', 'u', 'U', 'x', 'X', 'i', 'I', 'a', 'A', 's', 'S', 'o', 
                                                          'O', 'p', 'P', 'C', 'D', 'J' };
+        // all range editions, and 'y' for copy
         private static char[] Range_Edition_Chars = { 'c', 'd', 'y', '=' };
         private static char THE_g = 'g';
         private static char Left_Bracket = '[';
@@ -79,15 +79,13 @@ namespace LibNVim
 
         private ActionState _actionState = ActionState.None;
 
-        /// <summary>
-        /// 默认重复次数为 1
-        /// </summary>
         private RepeatNumberStore _repeatNumber = new RepeatNumberStore();
         private RepeatNumberStore _repeatNumberInRangeEdition = new RepeatNumberStore();
         private char _firstRangeEditionChar = '\0';
 
         /// <summary>
-        /// 记录 RangeEdition 的状态, 因为 _actionType 可能会被 ActionType.RepeatNumberInRangeEdition 冲掉
+        /// backup the state of RangeEdition,
+        /// because _actionType may be flushed by state such as ActionType.RepeatNumberInRangeEdition
         /// </summary>
         private bool _inRangeEdition = false;
 
@@ -202,7 +200,7 @@ namespace LibNVim
         }
 
         /// <summary>
-        /// 对 "cc" "dd", "yy", "==" 的触发
+        /// "cc" "dd", "yy", "=="
         /// </summary>
         /// <param name="keyInput"></param>
         /// <param name="repeat"></param>
@@ -249,12 +247,11 @@ namespace LibNVim
 
         public KeyEvalState Evaluate(VimKeyInput keyInput, out IVimAction action)
         {
-            // 通过有限状态自动机解析输入
+            // DFA to interpret keyInput
 
             action = null;
 
-            // 只要遇到 "Esc" 就从解析过程完全退出, 不理会之前的输入
-            // TODO 是否合理, 有待探讨
+            // the great "Esc", having power to quit immediately
             if (string.Compare(keyInput.Value, VimKeyInput.Escape) == 0) {
                 return KeyEvalState.Escape;
             }
@@ -293,7 +290,6 @@ namespace LibNVim
 
             if (!_inRangeEdition) {
                 if ((_actionState == ActionState.None) || (_actionState == ActionState.RepeatNumber)) {
-                    // ActionType.None 和 ActionType.RepeatNumber 可以并为一个处理
                     if (Simple_Motion_Chars.Contains(key_input)) {
                         _actionState = ActionState.SimpleMotion;
                         action = this.GetSimpleMotion(key_input, _repeatNumber);

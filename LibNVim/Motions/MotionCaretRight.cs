@@ -14,7 +14,7 @@ namespace LibNVim.Motions
         }
 
         /// <summary>
-        /// 最多移到行(非空)尾的前一个字符位置
+        /// move to at most one cursor before the end of the line
         /// </summary>
         /// <returns></returns>
         public override VimPoint Move()
@@ -25,7 +25,7 @@ namespace LibNVim.Motions
 
             if (this.Host.IsCurrentPositionAtEndOfLine())
             {
-                // 如果移到了行尾, 则需要左移一位
+                // if at the end of the line, move back one cursor
                 this.Host.CaretLeft();
             }
 
