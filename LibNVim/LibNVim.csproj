@@ -44,6 +44,7 @@
     <Compile Include="Editions\AbstractVimEditionRedoable.cs" />
     <Compile Include="Editions\AbstractVimRangeEdition.cs" />
     <Compile Include="Editions\EditionAppendToLineEnd.cs" />
+    <Compile Include="Editions\EditionApplyLastEditionRedoable.cs" />
     <Compile Include="Editions\EditionBackspace.cs" />
     <Compile Include="Editions\EditionChangeChar.cs" />
     <Compile Include="Editions\EditionAppend.cs" />

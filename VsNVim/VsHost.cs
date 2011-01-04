@@ -101,7 +101,7 @@ namespace VsNVim
 
         public override void Undo()
         {
-            SafeExecuteCommand("Edit.Undo");
+            this.SafeExecuteCommand("Edit.Undo");
             this.Select(this.CurrentPosition, this.CurrentPosition);
             if (this.IsCurrentPositionAtEndOfLine()) {
                 this.CaretLeft();
@@ -110,7 +110,7 @@ namespace VsNVim
 
         public override void Redo()
         {
-            SafeExecuteCommand("Edit.Redo");
+            this.SafeExecuteCommand("Edit.Redo");
             this.Select(this.CurrentPosition, this.CurrentPosition);
             if (this.IsCurrentPositionAtEndOfLine()) {
                 this.CaretLeft();
@@ -264,8 +264,11 @@ namespace VsNVim
 
         public override void MoveToStartOfLineText()
         {
-            // MoveToHome 有 2 种语义: 1) MoveToStartOfLineText 2) MoveToStartOfLine, 先做一次移动, 以消去 2)
-            _editorOperations.MoveToStartOfLine(false); // 最安全的消去方式, 如果只有一个字符 MoveToEndOfLine 会有问题
+            // MoveToHome has 2 behaviors: 1) MoveToStartOfLineText 2) MoveToStartOfLine
+            // we need be insure only 1) happens
+
+            // a safe way to do this, else such as MoveToEndOfLine will have problem if only one char in the line
+            _editorOperations.MoveToStartOfLine(false);
             _editorOperations.MoveToHome(false);
         }
 
@@ -296,11 +299,11 @@ namespace VsNVim
 
             if (this.IsCurrentPositionAtEndOfLine())
             {
-                // 最后一个单词时, VsEditor.MoveToNextWord 会跳到行尾, 而不是下一个单词,
-                // 所以附加一次 VsEditor.MoveToNextWord
+                // when last word, VsEditor.MoveToNextWord jumps to end of line, not the next word
+                // so an additional VsEditor.MoveToNextWord is executed
                 if (this.IsCurrentPositionAtEndOfDocument())
                 {
-                    // 但如果是文档末尾, 则无视该规则
+                    // if we are at the end of document, then no next word to go
                     this.CaretLeft();
                 }
                 _editorOperations.MoveToNextWord(false);
@@ -374,31 +377,31 @@ namespace VsNVim
 
         public override void OpenLineAbove()
         {
-            _editorOperations.OpenLineAbove();
+            this.SafeExecuteCommand("Edit.LineOpenAbove");
         }
 
         public override void OpenLineBelow()
         {
-            _editorOperations.OpenLineBelow();
+            this.SafeExecuteCommand("Edit.LineOpenBelow");
         }
 
         public override void FormatLine()
         {
-            SafeExecuteCommand("Edit.FormatSelection");
+            this.SafeExecuteCommand("Edit.FormatSelection");
         }
 
         public override void FormatLineRange(VimPoint from, VimPoint to)
         {
             this.Select(from, to);
-            SafeExecuteCommand("Edit.FormatSelection");
+            this.SafeExecuteCommand("Edit.FormatSelection");
             this.Select(from, from);
         }
 
         public override void DeleteLine()
         {
-            if (this.IsCurrentPositionAtStartOfLine() && this.IsCurrentPositionAtEndOfDocument())
+            if (this.IsCurrentPositionAtEndOfDocument() && this.IsCurrentPositionAtStartOfLine())
             {
-                // 处理文章尾的空行
+                // empty line at the end of document
                 if (this.IsCurrentPositionAtFirstLine())
                 {
                     return;
@@ -485,16 +488,21 @@ namespace VsNVim
             for (int i = (endLine - beginLine - 1); i >= 0; i--) {
                 ITextSnapshotLine line = _textView.TextSnapshot.GetLineFromLineNumber(beginLine + i);
                 int line_break_start = line.End.Position;
-                //Span span = new Span(line_break_start, line.LineBreakLength);
-                //edit.Replace(span, " ");
+                Span span = new Span(line_break_start, line.LineBreakLength);
+                edit.Replace(span, " ");
 
-                pos = line_break_start;
+                int line_break_end = line.EndIncludingLineBreak.Position;
+                pos = line_break_end;
                 char ch = new SnapshotPoint(_textView.TextSnapshot, pos).GetChar();
                 while (char.IsWhiteSpace(ch)) {
+                    if (ch == '\r' || ch == '\n') {
+                        // not overflow to next line
+                        break;
+                    }
                     pos++;
                     ch = new SnapshotPoint(_textView.TextSnapshot, pos).GetChar();
                 }
-                Span span = new Span(line_break_start, pos - line_break_start);
+                span = new Span(line_break_end, pos - line_break_end);
                 edit.Replace(span, " ");
             }
 

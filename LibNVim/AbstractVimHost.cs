@@ -13,7 +13,7 @@ namespace LibNVim
     {
 
         public IVimMode CurrentMode { get; set; }
-        public IVimEditionRedoable LastAction { get; private set; }
+        public IVimEditionRedoable LastEdition { get; set; }
 
         public abstract VimPoint CurrentPosition { get; }
         public abstract VimPoint CurrentLineEndPosition { get; }

@@ -14,7 +14,7 @@ namespace LibNVim.Interfaces
 
         int TextLineCount { get; }
 
-        IVimEditionRedoable LastAction { get; }
+        IVimEditionRedoable LastEdition { get; set; }
 
         void KeyDown(VimKeyEventArgs args);
 

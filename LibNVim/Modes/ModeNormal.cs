@@ -14,8 +14,6 @@ namespace LibNVim.Modes
         public IVimHost Host { get; private set; }
         public VimCaretShape CaretShape { get { return VimCaretShape.Block; } }
 
-        public IVimEditionRedoable LastEdition { get; private set; }
-
         public ModeNormal(IVimHost host)
         {
             this.Host = host;
@@ -26,7 +24,7 @@ namespace LibNVim.Modes
             bool result = edition.Apply();
             if (result) {
                 if (edition is IVimEditionRedoable) {
-                    this.LastEdition = edition as IVimEditionRedoable;
+                    this.Host.LastEdition = edition as IVimEditionRedoable;
                 }
             }
 
