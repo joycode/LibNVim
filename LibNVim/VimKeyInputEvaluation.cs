@@ -155,7 +155,7 @@ namespace LibNVim
 
             switch (keyInput) {
                 case '.':
-                    return new Editions.EditionApplyLastEditionRedoable(_host, repeat);
+                    return new Editions.EditionRepeatLastEdition(_host, repeat);
                 case 'u':
                     return new Editions.EditionUndo(_host, repeat);
                 case 'U':

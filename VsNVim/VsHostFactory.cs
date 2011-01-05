@@ -58,7 +58,7 @@ namespace VsNVim
             }
 
             IEditorOperations editor_operations = _editorOperationsFactoryService.GetEditorOperations(wpfTextView);
-            IBlockCaret block_caret = new BlockCaretFactoryService(_editorFormatMapService).CreateBlockCaret(wpfTextView);
+            VsVim.IBlockCaret block_caret = new VsVim.BlockCaretFactoryService(_editorFormatMapService).CreateBlockCaret(wpfTextView);
 
             _DTE dte = (_DTE)_vsServiceProvider.GetService(typeof(_DTE));
 

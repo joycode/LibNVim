@@ -70,13 +70,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BlockCaret.cs" />
-    <Compile Include="BlockCaretFactoryService.cs" />
-    <Compile Include="EditorFormatDefinitions.cs" />
-    <Compile Include="IBlockCaret.cs" />
-    <Compile Include="IBlockCaretFactoryService.cs" />
+    <Compile Include="VsVim\BlockCaret.cs" />
+    <Compile Include="VsVim\BlockCaretFactoryService.cs" />
+    <Compile Include="VsVim\EditorFormatDefinitions.cs" />
+    <Compile Include="VsVim\IBlockCaret.cs" />
+    <Compile Include="VsVim\IBlockCaretFactoryService.cs" />
     <Compile Include="VsHostManager.cs" />
-    <Compile Include="NativeMethods.cs" />
+    <Compile Include="VsVim\NativeMethods.cs" />
     <Compile Include="VsHost.cs" />
     <Compile Include="VsHostFactory.cs" />
     <Compile Include="VsKeyProcessor.cs" />
@@ -93,6 +93,9 @@
       <Project>{04B88D47-1BAF-4BC7-8270-C5F8AD87BFE5}</Project>
       <Name>LibNVim</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="VsVim\License.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v10.0\VSSDK\Microsoft.VsSDK.targets" />

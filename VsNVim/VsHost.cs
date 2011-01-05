@@ -22,7 +22,7 @@ namespace VsNVim
         private ITextView _textView = null;
         private _DTE _dte = null;
         private IEditorOperations _editorOperations = null;
-        private IBlockCaret _blockCaret = null;
+        private VsVim.IBlockCaret _blockCaret = null;
         private ICompletionBroker _completionBroker = null;
 
         public override VimPoint CurrentPosition
@@ -56,7 +56,7 @@ namespace VsNVim
             get { return _textView.TextSnapshot.LineCount; }
         }
 
-        public VsHost(ITextView textView, _DTE dte, IEditorOperations editorOperations, IBlockCaret blockCaret,
+        public VsHost(ITextView textView, _DTE dte, IEditorOperations editorOperations, VsVim.IBlockCaret blockCaret,
             ICompletionBroker completionBroker)
         {
             _textView = textView;
