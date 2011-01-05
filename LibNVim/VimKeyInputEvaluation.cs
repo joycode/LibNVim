@@ -44,6 +44,9 @@ namespace LibNVim
             }
         }
 
+        /// <summary>
+        /// DFA state on key input
+        /// </summary>
         private enum ActionState
         {
             None = 0, 
