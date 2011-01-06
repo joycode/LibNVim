@@ -25,6 +25,11 @@ namespace LibNVim
             this.CurrentMode = new ModeNormal(this);
         }
 
+        public virtual bool CanProcess(VimKeyInput keyInput)
+        {
+            return this.CurrentMode.CanProcess(keyInput);
+        }
+
         public virtual void KeyDown(VimKeyEventArgs args)
         {
             Debug.Assert(this.CurrentMode != null);
@@ -46,6 +51,7 @@ namespace LibNVim
         public abstract bool IsCurrentPositionAtLastLine();
 
         public abstract void MoveCursor(VimPoint pos);
+        public abstract void Select(VimSpan span);
         public abstract void Select(VimPoint from, VimPoint to);
 
         public abstract void CaretLeft();
@@ -75,7 +81,9 @@ namespace LibNVim
         public abstract void FormatLineRange(VimPoint from, VimPoint to);
 
         public abstract void DeleteLine();
+        public abstract void DeleteRange(VimSpan span);
         public abstract void DeleteRange(VimPoint from, VimPoint to);
+        public abstract void DeleteLineRange(VimSpan span);
         public abstract void DeleteLineRange(VimPoint from, VimPoint to);
 
         public abstract void DeleteTo(VimPoint pos);

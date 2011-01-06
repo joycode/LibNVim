@@ -16,6 +16,7 @@ namespace LibNVim.Interfaces
 
         IVimEditionRedoable LastEdition { get; set; }
 
+        bool CanProcess(VimKeyInput keyInput);
         void KeyDown(VimKeyEventArgs args);
 
         void Beep();
@@ -44,6 +45,7 @@ namespace LibNVim.Interfaces
         //bool IsPositionAtLastLine(VimPoint pos);
 
         void MoveCursor(VimPoint pos);
+        void Select(VimSpan span);
         void Select(VimPoint from, VimPoint to);
 
         void CaretLeft();
@@ -73,7 +75,9 @@ namespace LibNVim.Interfaces
         void FormatLineRange(VimPoint from, VimPoint to);
 
         void DeleteLine();
+        void DeleteRange(VimSpan span);
         void DeleteRange(VimPoint from, VimPoint to);
+        void DeleteLineRange(VimSpan span);
         void DeleteLineRange(VimPoint from, VimPoint to);
 
         void DeleteTo(VimPoint pos);

@@ -31,6 +31,23 @@ namespace LibNVim.Modes
             return result;
         }
 
+        public bool CanProcess(VimKeyInput keyInput)
+        {
+            if (keyInput.Value.Length == 1) {
+                // default is true, but when asked, say no
+                return false;
+            }
+            else {
+                // special command input
+                if (keyInput.Value.Equals(VimKeyInput.Escape)) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
         public void KeyDown(VimKeyEventArgs args)
         {
             bool handled = true;

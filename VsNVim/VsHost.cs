@@ -190,18 +190,69 @@ namespace VsNVim
             return new SnapshotPoint(_textView.TextSnapshot, dst_pos);
         }
 
+        private bool IsPositionAtEndOfLine(VimPoint pos)
+        {
+            SnapshotPoint point = this.TranslatePoint(pos);
+            ITextSnapshotLine line = point.GetContainingLine();
+
+            return (point.Position == line.End.Position);
+        }
+
+        private SnapshotSpan TranslateSpan(VimSpan span)
+        {
+            if (span.StartClosed && span.EndClosed) {
+                SnapshotPoint from = this.TranslatePoint(span.Start);
+
+                Debug.Assert(!this.IsPositionAtEndOfLine(span.End));
+                SnapshotPoint to = this.TranslatePoint(new VimPoint(span.End.X, span.End.Y + 1));
+
+                return new SnapshotSpan(from, to);
+            }
+            else if (span.StartClosed && !span.EndClosed) {
+                SnapshotPoint from = this.TranslatePoint(span.Start);
+                SnapshotPoint to = this.TranslatePoint(span.End);
+                return new SnapshotSpan(from, to);
+            }
+            else if (!span.StartClosed && span.EndClosed) {
+                Debug.Assert(!this.IsPositionAtEndOfLine(span.Start));
+                SnapshotPoint from = this.TranslatePoint(new VimPoint(span.Start.X, span.Start.Y + 1));
+
+                Debug.Assert(!this.IsPositionAtEndOfLine(span.End));
+                SnapshotPoint to = this.TranslatePoint(new VimPoint(span.End.X, span.End.Y + 1));
+
+                return new SnapshotSpan(from, to);
+            }
+            else if (!span.StartClosed && !span.EndClosed) {
+                Debug.Assert(!this.IsPositionAtEndOfLine(span.Start));
+                SnapshotPoint from = this.TranslatePoint(new VimPoint(span.Start.X, span.Start.Y + 1));
+
+                SnapshotPoint to = this.TranslatePoint(span.End);
+
+                return new SnapshotSpan(from, to);
+            }
+            else {
+                Debug.Assert(false);
+                throw new InvalidOperationException();
+            }
+        }
+
         public override void MoveCursor(VimPoint pos)
         {
             _textView.Caret.MoveTo(this.TranslatePoint(pos));
         }
 
+        public override void Select(VimSpan span)
+        {
+            SnapshotSpan editor_span = this.TranslateSpan(span);
+
+            _editorOperations.SelectAndMoveCaret(new VirtualSnapshotPoint(editor_span.Start),
+                new VirtualSnapshotPoint(editor_span.End));
+        }
+
         public override void Select(VimPoint from, VimPoint to)
         {
-            SnapshotPoint editor_from = this.TranslatePoint(from);
-            SnapshotPoint editor_to = this.TranslatePoint(to);
-
-            _editorOperations.SelectAndMoveCaret(new VirtualSnapshotPoint(editor_from), 
-                new VirtualSnapshotPoint(editor_to));
+            VimSpan span = new VimSpan(from, true, to, false);
+            this.Select(span);
         }
 
         public override void CaretLeft()
@@ -432,25 +483,32 @@ namespace VsNVim
             }
         }
 
-        public override void DeleteRange(VimPoint from, VimPoint to)
+        public override void DeleteRange(VimSpan span)
         {
-            this.Select(from, to);
+            SnapshotSpan editor_span = this.TranslateSpan(span);
+            this.Select(span);
             if (!_editorOperations.CanDelete) {
-                this.Select(from, from);
+                this.Select(span.Start, span.End);
                 return;
             }
             _editorOperations.Delete();
         }
 
-        public override void DeleteLineRange(VimPoint from, VimPoint to)
+        public override void DeleteRange(VimPoint from, VimPoint to)
         {
-            this.Select(from, to);
+            this.DeleteRange(new VimSpan(from, true, to, false));
+        }
+
+        public override void DeleteLineRange(VimSpan span)
+        {
+            this.Select(span);
             if (!_editorOperations.CanDelete) {
-                this.Select(from, from);
+                this.Select(span.Start, span.Start);
                 return;
             }
 
-            bool need_cleanup = (to.X == (_textView.TextSnapshot.LineCount - 1));
+            int dst_end_line = Math.Max(span.Start.X, span.End.X);
+            bool need_cleanup = dst_end_line == (_textView.TextSnapshot.LineCount - 1);
 
             _editorOperations.DeleteFullLine();
 
@@ -460,6 +518,11 @@ namespace VsNVim
                 }
                 this.SafeExecuteCommand("Edit.DeleteBackwards");
             }
+        }
+
+        public override void DeleteLineRange(VimPoint from, VimPoint to)
+        {
+            this.DeleteLineRange(new VimSpan(from, true, to, false));
         }
 
         public override void DeleteTo(VimPoint pos)

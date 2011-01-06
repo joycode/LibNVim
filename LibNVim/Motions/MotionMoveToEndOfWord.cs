@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LibNVim.Motions
 {
-    class MotionMoveToEndOfWord : AbstractVimMotion, Interfaces.IVimMotionWordWise
+    class MotionMoveToEndOfWord : AbstractVimMotion, Interfaces.IVimMotionEndOfWord
     {
         public MotionMoveToEndOfWord(Interfaces.IVimHost host, int repeat)
             : base(host, repeat)

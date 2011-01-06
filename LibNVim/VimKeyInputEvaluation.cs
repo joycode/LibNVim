@@ -9,13 +9,16 @@ namespace LibNVim
 {
     public class VimKeyInputEvaluation
     {
+        /// <summary>
+        /// key input evaluation state
+        /// </summary>
         public enum KeyEvalState
         {
             None = 0, Error, InProcess, Success, Escape,
         }
 
         /// <summary>
-        /// some command like 'G', have different behaviours between default repeat number and user given number
+        /// some commands like 'G', have different behaviours between default repeat number and user given number
         /// </summary>
         private class RepeatNumberStore
         {

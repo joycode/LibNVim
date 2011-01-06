@@ -64,9 +64,11 @@
     <Compile Include="Editions\AbstractVimEdition.cs" />
     <Compile Include="Editions\EditionUndo.cs" />
     <Compile Include="Interfaces\IVimMotionEndOfLine.cs" />
+    <Compile Include="Interfaces\IVimMotionEndOfWord.cs" />
     <Compile Include="Interfaces\IVimMotionLineWise.cs" />
     <Compile Include="Interfaces\IVimEdititon.cs" />
     <Compile Include="Interfaces\IVimEditionRedoable.cs" />
+    <Compile Include="Interfaces\IVimMotionNextWord.cs" />
     <Compile Include="Interfaces\IVimMotionWordWise.cs" />
     <Compile Include="Interfaces\IVimRangeEdition.cs" />
     <Compile Include="Interfaces\IVimAction.cs" />
@@ -97,6 +99,7 @@
     <Compile Include="VimPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interfaces\IVimHost.cs" />
+    <Compile Include="VimSpan.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.txt" />

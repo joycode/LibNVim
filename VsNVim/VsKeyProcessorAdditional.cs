@@ -82,6 +82,97 @@ namespace VsNVim
             return false;
         }
 
+        bool TryConvert(Guid commandGroup, uint commandId, IntPtr pVariableIn, out VimKeyInput ki)
+        {
+            if (VSConstants.GUID_VSStandardCommandSet97 == commandGroup) {
+                return TryConvert((VSConstants.VSStd97CmdID)commandId, pVariableIn, out ki);
+            }
+            else if (VSConstants.VSStd2K == commandGroup) {
+                return TryConvert((VSConstants.VSStd2KCmdID)commandId, pVariableIn, out ki);
+            }
+            else {
+                ki = null;
+                return false;
+            }
+        }
+
+        bool TryConvert(VSConstants.VSStd97CmdID cmdId, IntPtr pVariantIn, out VimKeyInput ki)
+        {
+            ki = null;
+
+            switch (cmdId) {
+                case VSConstants.VSStd97CmdID.SingleChar:
+                    break;
+                case VSConstants.VSStd97CmdID.Escape:
+                    ki = new VimKeyInput(VimKeyInput.Escape);
+                    break;
+                case VSConstants.VSStd97CmdID.Delete:
+                    ki = new VimKeyInput(VimKeyInput.Delete);
+                    break;
+                case VSConstants.VSStd97CmdID.F1Help:
+                    break;
+            }
+
+            return ki != null;
+        }
+
+        bool TryConvert(VSConstants.VSStd2KCmdID cmdId, IntPtr pVariantIn, out VimKeyInput ki)
+        {
+            ki = null;
+
+            switch (cmdId) {
+                case VSConstants.VSStd2KCmdID.TYPECHAR:
+                    break;
+                case VSConstants.VSStd2KCmdID.RETURN:
+                    ki = new VimKeyInput(VimKeyInput.Enter);
+                    break;
+                case VSConstants.VSStd2KCmdID.CANCEL:
+                    ki = new VimKeyInput(VimKeyInput.Escape);
+                    break;
+                case VSConstants.VSStd2KCmdID.DELETE:
+                    ki = new VimKeyInput(VimKeyInput.Delete);
+                    break;
+                case VSConstants.VSStd2KCmdID.BACKSPACE:
+                    ki = new VimKeyInput(VimKeyInput.Backspace);
+                    break;
+                case VSConstants.VSStd2KCmdID.LEFT:
+                case VSConstants.VSStd2KCmdID.LEFT_EXT:
+                case VSConstants.VSStd2KCmdID.LEFT_EXT_COL:
+                    ki = new VimKeyInput(VimKeyInput.Arrow_Left);
+                    break;
+                case VSConstants.VSStd2KCmdID.RIGHT:
+                case VSConstants.VSStd2KCmdID.RIGHT_EXT:
+                case VSConstants.VSStd2KCmdID.RIGHT_EXT_COL:
+                    ki = new VimKeyInput(VimKeyInput.Arrow_Right);
+                    break;
+                case VSConstants.VSStd2KCmdID.UP:
+                case VSConstants.VSStd2KCmdID.UP_EXT:
+                case VSConstants.VSStd2KCmdID.UP_EXT_COL:
+                    ki = new VimKeyInput(VimKeyInput.Arrow_Up);
+                    break;
+                case VSConstants.VSStd2KCmdID.DOWN:
+                case VSConstants.VSStd2KCmdID.DOWN_EXT:
+                case VSConstants.VSStd2KCmdID.DOWN_EXT_COL:
+                    ki = new VimKeyInput(VimKeyInput.Arrow_Down);
+                    break;
+                case VSConstants.VSStd2KCmdID.TAB:
+                    ki = new VimKeyInput(VimKeyInput.Tab);
+                    break;
+                case VSConstants.VSStd2KCmdID.PAGEDN:
+                case VSConstants.VSStd2KCmdID.PAGEDN_EXT:
+                    ki = new VimKeyInput(VimKeyInput.Page_Down);
+                    break;
+                case VSConstants.VSStd2KCmdID.PAGEUP:
+                case VSConstants.VSStd2KCmdID.PAGEUP_EXT:
+                    ki = new VimKeyInput(VimKeyInput.Page_Up);
+                    break;
+                default:
+                    break;
+            }
+
+            return ki != null;
+        }
+
         bool TriggerEscapeKey(Guid commandGroup, uint commandId, IntPtr pvaIn)
         {
             // Don't ever process a command when we are in an automation function.  Doing so will cause VsVim to 
@@ -91,13 +182,10 @@ namespace VsNVim
             }
 
             bool triggered = false;
-            if (VSConstants.GUID_VSStandardCommandSet97 == commandGroup) {
-                if ((VSConstants.VSStd97CmdID)commandId == VSConstants.VSStd97CmdID.Escape) {
-                    triggered = true;
-                }
-            }
-            else if (VSConstants.VSStd2K == commandGroup) {
-                if ((VSConstants.VSStd2KCmdID)commandId == VSConstants.VSStd2KCmdID.CANCEL) {
+
+            VimKeyInput key_input = null;
+            if (this.TryConvert(commandGroup, commandId, pvaIn, out key_input)) {
+                if (key_input.Value == VimKeyInput.Escape) {
                     triggered = true;
                 }
             }
@@ -122,14 +210,26 @@ namespace VsNVim
                 }
             }
 
-            if (this.IsDebugIgnore(commandGroup, commandId) ||
-                !this.TriggerEscapeKey(commandGroup, commandId, pvaIn)) {
-                return _nextTarget.Exec(commandGroup, commandId, nCmdexecopt, pvaIn, pvaOut);
+            bool handled = true;
+            VimKeyInput key_input = null;
+
+            if (this.IsDebugIgnore(commandGroup, commandId)) {
+                handled = false;
+            }
+            else if (!this.TryConvert(commandGroup, commandId, pvaIn, out key_input)) {
+                handled = false;
+            }
+            else if (!_host.CanProcess(key_input)) {
+                handled = false;
             }
 
-            _host.KeyDown(new VimKeyEventArgs(new VimKeyInput("Esc")));
-
-            return VSConstants.S_OK;
+            if (handled) {
+                _host.KeyDown(new VimKeyEventArgs(key_input));
+                return VSConstants.S_OK;
+            }
+            else {
+                return _nextTarget.Exec(commandGroup, commandId, nCmdexecopt, pvaIn, pvaOut);
+            }
         }
 
         int IOleCommandTarget.QueryStatus(ref Guid pguidCmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)

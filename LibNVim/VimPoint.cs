@@ -8,7 +8,7 @@ namespace LibNVim
     /// <summary>
     /// X stands line, Y stands column
     /// </summary>
-    public class VimPoint
+    public class VimPoint : IComparable<VimPoint>
     {
         public int X { get; set; }
         public int Y { get; set; }
@@ -22,6 +22,27 @@ namespace LibNVim
         public VimPoint()
             : this(0, 0)
         {
+        }
+
+        public int CompareTo(VimPoint other)
+        {
+            if (this.X < other.X) {
+                return -1;
+            }
+            else if (this.X == other.X) {
+                if (this.Y < other.Y) {
+                    return -1;
+                }
+                else if (this.Y == other.Y) {
+                    return 0;
+                }
+                else {
+                    return 1;
+                }
+            }
+            else {
+                return 1;
+            }
         }
     }
 }

@@ -15,6 +15,5 @@ namespace LibNVim.Editions
         {
             this.Motion = motion;
         }
-
     }
 }

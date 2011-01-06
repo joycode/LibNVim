@@ -9,7 +9,7 @@ namespace LibNVim.Motions
     /// <summary>
     /// 'w'
     /// </summary>
-    class MotionMoveToNextWord : AbstractVimMotion, Interfaces.IVimMotionWordWise
+    class MotionMoveToNextWord : AbstractVimMotion, Interfaces.IVimMotionNextWord
     {
         public MotionMoveToNextWord(IVimHost host, int repeat)
             : base(host, repeat)

@@ -10,6 +10,7 @@ namespace LibNVim.Interfaces
         IVimHost Host { get; }
         VimCaretShape CaretShape { get; }
 
+        bool CanProcess(VimKeyInput keyInput);
         void KeyDown(VimKeyEventArgs args);
     }
 }
