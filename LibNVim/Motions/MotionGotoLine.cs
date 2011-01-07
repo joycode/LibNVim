@@ -18,7 +18,10 @@ namespace LibNVim.Motions
         public override VimPoint Move()
         {
             int dst_line = this.Repeat - 1;
-            this.Host.GotoLine(dst_line);
+
+            if (dst_line != this.Host.CurrentPosition.X) {
+                this.Host.GotoLine(dst_line);
+            }
 
             return this.Host.CurrentPosition;
         }

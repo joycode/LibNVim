@@ -235,6 +235,9 @@ namespace VsNVim
                 return _nextTarget.Exec(commandGroup, commandId, nCmdexecopt, pvaIn, pvaOut);
             }
             catch (Exception ex) {
+#if DEBUG
+                System.Windows.MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
+#endif
                 return -1;
             }
         }
@@ -252,6 +255,9 @@ namespace VsNVim
                 return _nextTarget.QueryStatus(pguidCmdGroup, cCmds, prgCmds, pCmdText);
             }
             catch (Exception ex) {
+#if DEBUG
+                System.Windows.MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
+#endif
                 return -1;
             }
         }

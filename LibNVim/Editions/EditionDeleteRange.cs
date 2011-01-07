@@ -18,20 +18,21 @@ namespace LibNVim.Editions
 
         public override bool Apply()
         {
+            VimPoint from = this.Host.CurrentPosition;
+            VimPoint to = null;
             for (int i = 0; i < this.Repeat; i++) {
-                VimPoint from = this.Host.CurrentPosition;
-                VimPoint to = this.Motion.Move();
+                to = this.Motion.Move();
+            }
 
-                VimSpan span = null;
-                if (from.CompareTo(to) <= 0) {
-                    span = new VimSpan(from, to);
-                }
-                else {
-                    span = new VimSpan(to, from);
-                }
+            VimSpan span = null;
+            if (from.CompareTo(to) > 0) {
+                span = new VimSpan(to, from);
+            }
+            else {
+                span = new VimSpan(from, to);
 
                 if (this.Motion is Interfaces.IVimMotionNextWord) {
-                    // "dw" on the last word of the line equals to "de"
+                    // "dw" on the last word of the line deletes to the end of the line
                     if (this.Host.IsCurrentPositionAtStartOfLineText()) {
                         this.Host.CaretUp();
                         this.Host.MoveToEndOfLine();
@@ -46,17 +47,16 @@ namespace LibNVim.Editions
                     // so a manual compensation is needed
                     span = span.GetClosedEnd();
                 }
-
-                if (this.Motion is IVimMotionBetweenLines) {
-                    this.Host.DeleteLineRange(span);
-                }
-                else {
-                    this.Host.DeleteRange(span);
-                }
             }
 
-            if (this.Host.IsCurrentPositionAtEndOfLine())
-            {
+            if (this.Motion is IVimMotionBetweenLines) {
+                this.Host.DeleteLineRange(span);
+            }
+            else {
+                this.Host.DeleteRange(span);
+            }
+
+            if (this.Host.IsCurrentPositionAtEndOfLine()) {
                 this.Host.CaretLeft();
             }
 

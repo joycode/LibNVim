@@ -67,6 +67,8 @@ namespace LibNVim.Interfaces
         void MoveToNextWord();
         void MoveToEndOfWord();
 
+        void MoveToPreviousCharacter();
+
         bool GoToMatch();
 
         void InsertTextAtCurrentPosition(string text);

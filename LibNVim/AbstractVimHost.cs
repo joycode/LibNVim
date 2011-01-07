@@ -73,6 +73,8 @@ namespace LibNVim
         public abstract void MoveToNextWord();
         public abstract void MoveToEndOfWord();
 
+        public abstract void MoveToPreviousCharacter();
+
         public abstract bool GoToMatch();
 
         public abstract void InsertTextAtCurrentPosition(string text);

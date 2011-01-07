@@ -45,7 +45,9 @@ namespace VsNVim
                 }
             }
             catch (Exception ex) {
-                return;
+#if DEBUG
+                System.Windows.MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
+#endif
             }
         }
 

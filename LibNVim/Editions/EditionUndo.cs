@@ -14,7 +14,9 @@ namespace LibNVim.Editions
 
         public override bool Apply()
         {
-            this.Host.Undo();
+            for (int i = 0; i < this.Repeat; i++) {
+                this.Host.Undo();
+            }
 
             return true;
         }

@@ -17,16 +17,32 @@ namespace LibNVim.Editions
 
         protected override void OnBeforeInsert()
         {
-            for (int i = 0; i < this.Repeat; i++) {
-                VimPoint from = this.Host.CurrentPosition;
-                VimPoint to = this.Motion.Move();
+            VimPoint from = this.Host.CurrentPosition;
+            VimPoint to = null;
 
-                VimSpan span = new VimSpan(from, to);
+            for (int i = 0; i < this.Repeat; i++) {
+                to = this.Motion.Move();
+            }
+
+            VimSpan span = null;
+
+            if (from.CompareTo(to) > 0) {
+                span = new VimSpan(to, from);
+            }
+            else {
+                span = new VimSpan(from, to);
 
                 if (this.Motion is Interfaces.IVimMotionNextWord) {
-                    // 'w' equals to 'e' here
-                    this.Host.MoveToPreviousWord();
-                    this.Host.MoveToEndOfWord();
+                    // last 'w' moves to the end of the word
+                    do {
+                        this.Host.MoveToPreviousCharacter();
+                        char ch = this.Host.GetCharAtCurrentPosition();
+                        if (!char.IsWhiteSpace(ch)) {
+                            break;
+                        }
+                    }
+                    while (true);
+
                     span = new VimSpan(from, this.Host.CurrentPosition).GetClosedEnd();
                 }
                 else if (this.Motion is Interfaces.IVimMotionEndOfWord) {
@@ -37,13 +53,13 @@ namespace LibNVim.Editions
                     // so a manual compensation is needed
                     span = span.GetClosedEnd();
                 }
+            }
 
-                if (this.Motion is Interfaces.IVimMotionBetweenLines) {
-                    this.Host.DeleteLineRange(span);
-                }
-                else {
-                    this.Host.DeleteRange(span);
-                }
+            if (this.Motion is Interfaces.IVimMotionBetweenLines) {
+                this.Host.DeleteLineRange(span);
+            }
+            else {
+                this.Host.DeleteRange(span);
             }
         }
     }

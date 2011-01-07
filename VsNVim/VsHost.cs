@@ -412,6 +412,11 @@ namespace VsNVim
             this.MoveToEndOfWordCore();
         }
 
+        public override void MoveToPreviousCharacter()
+        {
+            _editorOperations.MoveToPreviousCharacter(false);
+        }
+
         public override bool GoToMatch()
         {
             char[] Left_Brackets = { '(', '[', '{' };
@@ -554,6 +559,7 @@ namespace VsNVim
         {
             //_editorOperations.ScrollLineCenter
             throw new NotImplementedException();
+            //_editorOperations.MoveToPreviousCharacter
         }
 
         public override void JoinLines(int beginLine, int endLine)
