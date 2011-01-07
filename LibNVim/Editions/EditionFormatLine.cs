@@ -19,9 +19,10 @@ namespace LibNVim.Editions
             }
             else {
                 VimPoint from = this.Host.CurrentPosition;
-                int dst_line = Math.Min(from.X + this.Repeat, this.Host.TextLineCount - 1);
+                int dst_line = Math.Min(from.X + this.Repeat - 1, this.Host.TextLineCount - 1);
+                VimPoint to = new VimPoint(dst_line, 0);
 
-                this.Host.FormatLineRange(from, new VimPoint(dst_line, 0));
+                this.Host.FormatLineRange(new VimSpan(from, to));
             }
 
             return true;

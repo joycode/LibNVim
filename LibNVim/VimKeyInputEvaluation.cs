@@ -61,6 +61,7 @@ namespace LibNVim
             Motion_gg, // "gg"
             MotionOfLeftBracket, // "[{", no plans for "[["
             MotionOfRightBracket, // "]}", no plans for "]]"
+            Motion_zz, // "zz"
         }
 
         /// <summary>
@@ -80,6 +81,7 @@ namespace LibNVim
         private static char Left_Brace = '{';
         private static char Right_Bracket = ']';
         private static char Right_Brace = '}';
+        private static char THE_z = 'z';
 
         private IVimHost _host = null;
 
@@ -324,13 +326,18 @@ namespace LibNVim
                         _actionState = ActionState.MotionOfRightBracket;
                         return KeyEvalState.InProcess;
                     }
+                    else if (key_input == THE_z) {
+                        _actionState = ActionState.Motion_zz;
+                        return KeyEvalState.InProcess;
+                    }
                     else {
                         return KeyEvalState.Error;
                     }
                 }
                 else if (_actionState == ActionState.Motion_gg) {
                     if (key_input == THE_g) {
-                        return KeyEvalState.None;
+                        action = new Motions.MotionGotoLine(_host, _repeatNumber.Value);
+                        return KeyEvalState.Success;
                     }
                     else {
                         return KeyEvalState.Error;
@@ -347,6 +354,21 @@ namespace LibNVim
                 else if (_actionState == ActionState.MotionOfRightBracket) {
                     if (key_input == Right_Brace) {
                         return KeyEvalState.None;
+                    }
+                    else {
+                        return KeyEvalState.Error;
+                    }
+                }
+                else if (_actionState == ActionState.Motion_zz) {
+                    if (key_input == THE_z) {
+                        if (_repeatNumber.IsDefault) {
+                            int current_line_number = _host.CurrentPosition.X + 1;
+                            action = new Motions.MotionScrollLineCenter(_host, current_line_number);
+                        }
+                        else {
+                            action = new Motions.MotionScrollLineCenter(_host, _repeatNumber.Value);
+                        }
+                        return KeyEvalState.Success;
                     }
                     else {
                         return KeyEvalState.Error;

@@ -21,13 +21,13 @@ namespace LibNVim.Editions
                 VimPoint from = this.Host.CurrentPosition;
                 VimPoint to = this.Motion.Move();
 
-                VimSpan span = new VimSpan(from, true, to, false);
+                VimSpan span = new VimSpan(from, to);
 
                 if (this.Motion is Interfaces.IVimMotionNextWord) {
                     // 'w' equals to 'e' here
                     this.Host.MoveToPreviousWord();
                     this.Host.MoveToEndOfWord();
-                    span = new VimSpan(from, true, this.Host.CurrentPosition, true);
+                    span = new VimSpan(from, this.Host.CurrentPosition).GetClosedEnd();
                 }
                 else if (this.Motion is Interfaces.IVimMotionEndOfWord) {
                     span = span.GetClosedEnd();
@@ -39,7 +39,7 @@ namespace LibNVim.Editions
                 }
 
                 if (this.Motion is Interfaces.IVimMotionBetweenLines) {
-                    this.Host.DeleteLineRange(span.Start, span.End);
+                    this.Host.DeleteLineRange(span);
                 }
                 else {
                     this.Host.DeleteRange(span);

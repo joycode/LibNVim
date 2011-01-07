@@ -11,26 +11,31 @@ namespace LibNVim.Modes
     class ModeInsert : IVimMode
     {
         /// <summary>
-        /// record location key input 
+        /// special key input to deal with
         /// </summary>
-        private enum LastValidLocationAction { None, Enter, Tab, Backspace };
+        private enum NoneCharKeyInputType { None, Unsupport, Enter, Tab, Backspace};
 
-        private VimSpan _editionRegion = null;
-        private LastValidLocationAction _lastLocationAction = LastValidLocationAction.None;
+        /// <summary>
+        /// effective insert region, in order to track text inputed
+        /// </summary>
+        private VimSpan _insertArea = null;
+        private NoneCharKeyInputType _activeNoneCharKeyInput = NoneCharKeyInputType.None;
 
         public IVimHost Host { get; private set; }
+        public VimCaretShape CaretShape { get { return VimCaretShape.NormalCaret; } }
+
         /// <summary>
         /// the reseaon for entering Insert Mode 
         /// </summary>
         public AbstractVimEditionInsertText CausedEdition { get; private set; }
-        public VimCaretShape CaretShape { get { return VimCaretShape.NormalCaret; } }
-
+        /// <summary>
+        /// mode before entering insert mode, when quit insert mode, we need to retore to this mode
+        /// </summary>
         public IVimMode PreviousMode { get; private set; }
 
         public ModeInsert(IVimHost host, IVimMode previousMode, AbstractVimEditionInsertText causedEdition)
         {
-            _editionRegion = new VimSpan(host.CurrentPosition, true, 
-                host.CurrentPosition, false);
+            _insertArea = new VimSpan(host.CurrentPosition, host.CurrentPosition);
 
             this.Host = host;
             this.CausedEdition = causedEdition;
@@ -45,17 +50,14 @@ namespace LibNVim.Modes
             return true;
         }
 
-        private void OnKeyImmediatelyAfterLastLocationAction()
+        private void OnKeyInputImmediatelyAfterLastNoneCharKeyInput()
         {
-            _lastLocationAction = LastValidLocationAction.None;
-
-            if (this.Host.CurrentPosition.CompareTo(_editionRegion.Start) < 0) {
+            if (this.Host.CurrentPosition.CompareTo(_insertArea.Start) < 0) {
                 return;
             }
 
             // extends edition region regarding to last location action
-            _editionRegion = new VimSpan(_editionRegion.Start, _editionRegion.StartClosed, 
-                this.Host.CurrentPosition, false);
+            _insertArea = _insertArea.ExtendEndTo(this.Host.CurrentPosition);
         }
 
         /// <summary>
@@ -64,12 +66,46 @@ namespace LibNVim.Modes
         /// <param name="args"></param>
         public virtual void KeyDown(VimKeyEventArgs args)
         {
-            if (args.KeyInput.Value == VimKeyInput.Escape) {
-                if (_lastLocationAction != LastValidLocationAction.None) {
-                    this.OnKeyImmediatelyAfterLastLocationAction();
+            // important for dealing some unexpected scene
+            bool is_unsupported_key_last_input = false;
+
+            if (_activeNoneCharKeyInput != NoneCharKeyInputType.None) {
+                if (_activeNoneCharKeyInput == NoneCharKeyInputType.Unsupport) {
+                    is_unsupported_key_last_input = true;
+                }
+                else {
+                    // extends edition region regarding to last supported special key input
+                    _insertArea = _insertArea.ExtendEndTo(this.Host.CurrentPosition);
+                }
+                
+                _activeNoneCharKeyInput = NoneCharKeyInputType.None;
+            }
+
+            if (args.KeyInput.Value.Length == 1) {
+                // KeyDown event is fired up before text's change, so the real position after input should be one char right by current.
+                VimPoint previous_pos = this.Host.CurrentPosition;
+                VimPoint next_pos = new VimPoint(previous_pos.X, previous_pos.Y + 1);
+
+                if (!is_unsupported_key_last_input) {
+                    // in normally char input typing, simply extends insert area to current position
+                    _insertArea = _insertArea.ExtendEndTo(next_pos);
+                }
+                else {
+                    _insertArea = new VimSpan(previous_pos, next_pos);
+                }
+            }
+            else if (args.KeyInput.Value == VimKeyInput.Escape) {
+                if (!is_unsupported_key_last_input) {
+                    // Escape after normal key/char input, do some extra checks
+                    if (this.Host.CurrentPosition.CompareTo(_insertArea.End) != 0) {
+                        // you can't expect to get precise input text here, because everything is under control, but something wrong happened
+                        // so we can only do some poor guess: 
+                        // insert area's Start wouldn't change, only need to extend area's End to current cursor's position
+                        _insertArea = _insertArea.ExtendEndTo(this.Host.CurrentPosition);
+                    }
                 }
 
-                this.CausedEdition.Text = this.Host.GetText(_editionRegion);
+                this.CausedEdition.Text = this.Host.GetText(_insertArea);
 
                 this.Host.CurrentMode = PreviousMode;
                 this.Host.DismissDisplayWindows();
@@ -79,38 +115,25 @@ namespace LibNVim.Modes
 
                 args.Handled = true;
             }
-            else if (args.KeyInput.Value == VimKeyInput.Enter) {
-                if (this.Host.CurrentPosition.CompareTo(_editionRegion.End) == 0) {
-                    _lastLocationAction = LastValidLocationAction.Enter;
-                }
-            }
-            else if (args.KeyInput.Value == VimKeyInput.Tab) {
-                if (this.Host.CurrentPosition.CompareTo(_editionRegion.End) == 0) {
-                    _lastLocationAction = LastValidLocationAction.Tab;
-                }
-            }
-            else if (args.KeyInput.Value == VimKeyInput.Backspace) {
-                if (this.Host.CurrentPosition.CompareTo(_editionRegion.End) == 0) {
-                    _lastLocationAction = LastValidLocationAction.Backspace;
-                }
-            }
-            else if (args.KeyInput.Value.Length == 1) {
-                if (_lastLocationAction != LastValidLocationAction.None) {
-                    this.OnKeyImmediatelyAfterLastLocationAction();
-                }
-                VimPoint current_pos = this.Host.CurrentPosition;
-                VimPoint next_pos = new VimPoint(current_pos.X, current_pos.Y + 1);
-                if (current_pos.CompareTo(_editionRegion.End) == 0) {
-                    _editionRegion = new VimSpan(_editionRegion.Start, _editionRegion.StartClosed,
-                        next_pos, false);
-                }
-                else {
-                    _editionRegion = new VimSpan(current_pos, true, next_pos, false);
-                }
-            }
             else {
-                if (_lastLocationAction != LastValidLocationAction.None) {
-                    this.OnKeyImmediatelyAfterLastLocationAction();
+                _activeNoneCharKeyInput = NoneCharKeyInputType.None;
+
+                if (this.Host.CurrentPosition.CompareTo(_insertArea.End) == 0) {
+                    // speical key input happens at the end of text input area, 
+                    // we think it's a valid input, save it as a active special key input,
+                    // and in the next loop, to deal with it
+                    if (args.KeyInput.Value == VimKeyInput.Enter) {
+                        _activeNoneCharKeyInput = NoneCharKeyInputType.Enter;
+                    }
+                    else if (args.KeyInput.Value == VimKeyInput.Tab) {
+                        _activeNoneCharKeyInput = NoneCharKeyInputType.Tab;
+                    }
+                    else if (args.KeyInput.Value == VimKeyInput.Backspace) {
+                        _activeNoneCharKeyInput = NoneCharKeyInputType.Backspace;
+                    }
+                    else {
+                        _activeNoneCharKeyInput = NoneCharKeyInputType.Unsupport;
+                    }
                 }
             }
         }

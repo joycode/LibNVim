@@ -48,7 +48,6 @@ namespace LibNVim.Interfaces
 
         void MoveCursor(VimPoint pos);
         void Select(VimSpan span);
-        void Select(VimPoint from, VimPoint to);
 
         void CaretLeft();
         void CaretRight();
@@ -77,13 +76,11 @@ namespace LibNVim.Interfaces
         void OpenLineBelow();
 
         void FormatLine();
-        void FormatLineRange(VimPoint from, VimPoint to);
+        void FormatLineRange(VimSpan span);
 
         void DeleteLine();
         void DeleteRange(VimSpan span);
-        void DeleteRange(VimPoint from, VimPoint to);
         void DeleteLineRange(VimSpan span);
-        void DeleteLineRange(VimPoint from, VimPoint to);
 
         void DeleteTo(VimPoint pos);
 
@@ -92,5 +89,7 @@ namespace LibNVim.Interfaces
         void DeleteWord();
 
         void JoinLines(int beginLine, int endLine);
+
+        void ScrollLineCenter();
     }
 }

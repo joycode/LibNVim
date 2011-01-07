@@ -20,7 +20,15 @@ namespace LibNVim.Editions
             VimPoint from = this.Host.CurrentPosition;
             VimPoint to = this.Motion.Move();
 
-            this.Host.FormatLineRange(from, to);
+            VimSpan span = null;
+            if (from.CompareTo(to) <= 0) {
+                span = new VimSpan(from, to);
+            }
+            else {
+                span = new VimSpan(to, from);
+            }
+
+            this.Host.FormatLineRange(span);
 
             return true;
         }

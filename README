@@ -8,7 +8,7 @@ Modes supported: Normal, Insert
 Have no idea on the need of some simple support in Ex Mode(such as ":w", ":q"), and Search Mode("/xxx", ignorecase default, and no regex)
 
 Motions
-already implemented: 'h', 'H', 'j', 'k', 'l', 'L', '0', '^', '$', 'G', 'w', 'W', 'e', 'E', 'b', 'B', '%'
+already implemented: 'h', 'H', 'j', 'k', 'l', 'L', '0', '^', '$', 'G', 'w', 'W', 'e', 'E', 'b', 'B', '%', "gg", "zz"
 still in waiting: 'f', 'F', 't', 'T', '*', '#'
 
 Simple Editions
@@ -18,5 +18,4 @@ Range Editions
 already implemented: 'cX', 'dX', '=X'
 
 Copy & Paste: 
-still in waiting: 'yX', 'p', 'P' 
-
+still in waiting: 'yX', 'p', 'P'

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace LibNVim
 {
@@ -15,10 +16,22 @@ namespace LibNVim
 
         public VimSpan(VimPoint start, bool startClosed, VimPoint end, bool endClosed)
         {
+            Debug.Assert(start.CompareTo(end) <= 0);
+
             this.Start = start;
             this.StartClosed = startClosed;
             this.End = end;
             this.EndClosed = endClosed;
+        }
+
+        /// <summary>
+        /// default set start closed, end open
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        public VimSpan(VimPoint start, VimPoint end)
+            : this(start, true, end, false)
+        {
         }
 
         public VimSpan GetClosedStart()
@@ -39,6 +52,21 @@ namespace LibNVim
         public VimSpan GetOpenEnd()
         {
             return new VimSpan(this.Start, true, this.End, false);
+        }
+
+        public VimSpan ExtendEndTo(VimPoint end, bool endClosed)
+        {
+            return new VimSpan(this.Start, this.StartClosed, end, endClosed);
+        }
+
+        /// <summary>
+        /// open end default
+        /// </summary>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        public VimSpan ExtendEndTo(VimPoint end)
+        {
+            return this.ExtendEndTo(end, false);
         }
 
         public bool Contains(VimPoint pos)

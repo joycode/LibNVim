@@ -14,9 +14,11 @@ namespace LibNVim.Editions
 
         protected override void OnBeforeInsert()
         {
-            VimPoint to = new VimPoint(this.Host.CurrentPosition.X,
-                Math.Min(this.Host.CurrentPosition.Y + this.Repeat - 1, this.Host.CurrentLineEndPosition.Y - 1));
-            this.Host.DeleteRange(this.Host.CurrentPosition, to);
+            VimPoint from = this.Host.CurrentPosition;
+            VimPoint to = new VimPoint(from.X,
+                Math.Min(from.Y + this.Repeat - 1, this.Host.CurrentLineEndPosition.Y - 1));
+
+            this.Host.DeleteRange(new VimSpan(from, to));
         }
     }
 }

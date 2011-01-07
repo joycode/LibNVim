@@ -8,9 +8,9 @@ namespace LibNVim.Motions
     /// <summary>
     /// Repeat stands for line number
     /// </summary>
-    class MotionGotoLine : AbstractVimMotion
+    class MotionScrollLineCenter : AbstractVimMotion
     {
-        public MotionGotoLine(Interfaces.IVimHost host, int repeat)
+        public MotionScrollLineCenter(Interfaces.IVimHost host, int repeat)
             : base(host, repeat)
         {
         }
@@ -19,6 +19,8 @@ namespace LibNVim.Motions
         {
             int dst_line = this.Repeat - 1;
             this.Host.GotoLine(dst_line);
+
+            this.Host.ScrollLineCenter();
 
             return this.Host.CurrentPosition;
         }

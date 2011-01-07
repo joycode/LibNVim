@@ -54,7 +54,6 @@ namespace LibNVim
 
         public abstract void MoveCursor(VimPoint pos);
         public abstract void Select(VimSpan span);
-        public abstract void Select(VimPoint from, VimPoint to);
 
         public abstract void CaretLeft();
         public abstract void CaretRight();
@@ -83,13 +82,11 @@ namespace LibNVim
         public abstract void OpenLineBelow();
 
         public abstract void FormatLine();
-        public abstract void FormatLineRange(VimPoint from, VimPoint to);
+        public abstract void FormatLineRange(VimSpan span);
 
         public abstract void DeleteLine();
         public abstract void DeleteRange(VimSpan span);
-        public abstract void DeleteRange(VimPoint from, VimPoint to);
         public abstract void DeleteLineRange(VimSpan span);
-        public abstract void DeleteLineRange(VimPoint from, VimPoint to);
 
         public abstract void DeleteTo(VimPoint pos);
 
@@ -99,5 +96,6 @@ namespace LibNVim
 
         public abstract void JoinLines(int beginLine, int endLine);
 
+        public abstract void ScrollLineCenter();
     }
 }

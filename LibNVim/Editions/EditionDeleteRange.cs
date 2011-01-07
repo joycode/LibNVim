@@ -22,14 +22,20 @@ namespace LibNVim.Editions
                 VimPoint from = this.Host.CurrentPosition;
                 VimPoint to = this.Motion.Move();
 
-                VimSpan span = new VimSpan(from, true, to, false);
+                VimSpan span = null;
+                if (from.CompareTo(to) <= 0) {
+                    span = new VimSpan(from, to);
+                }
+                else {
+                    span = new VimSpan(to, from);
+                }
 
                 if (this.Motion is Interfaces.IVimMotionNextWord) {
                     // "dw" on the last word of the line equals to "de"
                     if (this.Host.IsCurrentPositionAtStartOfLineText()) {
                         this.Host.CaretUp();
                         this.Host.MoveToEndOfLine();
-                        span = new VimSpan(from, true, this.Host.CurrentPosition, false);
+                        span = new VimSpan(from, this.Host.CurrentPosition);
                     }
                 }
                 else if (this.Motion is Interfaces.IVimMotionEndOfWord) {
@@ -42,7 +48,7 @@ namespace LibNVim.Editions
                 }
 
                 if (this.Motion is IVimMotionBetweenLines) {
-                    this.Host.DeleteLineRange(span.Start, span.End);
+                    this.Host.DeleteLineRange(span);
                 }
                 else {
                     this.Host.DeleteRange(span);

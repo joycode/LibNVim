@@ -18,9 +18,12 @@ namespace LibNVim.Editions
                 return true;
             }
 
-            VimPoint to = new VimPoint(this.Host.CurrentPosition.X,
-                Math.Max(this.Host.CurrentPosition.Y - this.Repeat, 0));
-            this.Host.DeleteRange(this.Host.CurrentPosition, to);
+            VimPoint from = this.Host.CurrentPosition;
+            VimPoint to = new VimPoint(from.X, Math.Max(from.Y - this.Repeat, 0));
+
+            VimSpan span = new VimSpan(to, from);
+            this.Host.DeleteRange(span);
+
             return true;
         }
     }

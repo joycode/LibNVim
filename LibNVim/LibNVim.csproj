@@ -85,6 +85,7 @@
     <Compile Include="Motions\MotionMoveToStartOfLineText.cs" />
     <Compile Include="Motions\MotionMoveToEndOfDocument.cs" />
     <Compile Include="Motions\MotionMoveToStartOfDocument.cs" />
+    <Compile Include="Motions\MotionScrollLineCenter.cs" />
     <Compile Include="VimKeyInputEvaluation.cs" />
     <Compile Include="Modes\ModeInsert.cs" />
     <Compile Include="Modes\ModeNormal.cs" />

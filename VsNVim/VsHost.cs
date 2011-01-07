@@ -102,7 +102,8 @@ namespace VsNVim
         public override void Undo()
         {
             this.SafeExecuteCommand("Edit.Undo");
-            this.Select(this.CurrentPosition, this.CurrentPosition);
+            _editorOperations.ResetSelection();
+
             if (this.IsCurrentPositionAtEndOfLine()) {
                 this.CaretLeft();
             }
@@ -111,7 +112,8 @@ namespace VsNVim
         public override void Redo()
         {
             this.SafeExecuteCommand("Edit.Redo");
-            this.Select(this.CurrentPosition, this.CurrentPosition);
+            _editorOperations.ResetSelection();
+
             if (this.IsCurrentPositionAtEndOfLine()) {
                 this.CaretLeft();
             }
@@ -257,12 +259,6 @@ namespace VsNVim
 
             _editorOperations.SelectAndMoveCaret(new VirtualSnapshotPoint(editor_span.Start),
                 new VirtualSnapshotPoint(editor_span.End));
-        }
-
-        public override void Select(VimPoint from, VimPoint to)
-        {
-            VimSpan span = new VimSpan(from, true, to, false);
-            this.Select(span);
         }
 
         public override void CaretLeft()
@@ -468,11 +464,11 @@ namespace VsNVim
             this.SafeExecuteCommand("Edit.FormatSelection");
         }
 
-        public override void FormatLineRange(VimPoint from, VimPoint to)
+        public override void FormatLineRange(VimSpan span)
         {
-            this.Select(from, to);
+            this.Select(span);
             this.SafeExecuteCommand("Edit.FormatSelection");
-            this.Select(from, from);
+            _editorOperations.ResetSelection();
         }
 
         public override void DeleteLine()
@@ -515,22 +511,17 @@ namespace VsNVim
             SnapshotSpan editor_span = this.TranslateSpan(span);
             this.Select(span);
             if (!_editorOperations.CanDelete) {
-                this.Select(span.Start, span.End);
+                _editorOperations.ResetSelection();
                 return;
             }
             _editorOperations.Delete();
-        }
-
-        public override void DeleteRange(VimPoint from, VimPoint to)
-        {
-            this.DeleteRange(new VimSpan(from, true, to, false));
         }
 
         public override void DeleteLineRange(VimSpan span)
         {
             this.Select(span);
             if (!_editorOperations.CanDelete) {
-                this.Select(span.Start, span.Start);
+                _editorOperations.ResetSelection();
                 return;
             }
 
@@ -547,11 +538,6 @@ namespace VsNVim
             }
         }
 
-        public override void DeleteLineRange(VimPoint from, VimPoint to)
-        {
-            this.DeleteLineRange(new VimSpan(from, true, to, false));
-        }
-
         public override void DeleteTo(VimPoint pos)
         {
             throw new NotImplementedException();
@@ -566,6 +552,7 @@ namespace VsNVim
 
         public override void DeleteWord()
         {
+            //_editorOperations.ScrollLineCenter
             throw new NotImplementedException();
         }
 
@@ -599,6 +586,11 @@ namespace VsNVim
             }
 
             edit.Apply();
+        }
+
+        public override void ScrollLineCenter()
+        {
+            _editorOperations.ScrollLineCenter();
         }
     }
 }
