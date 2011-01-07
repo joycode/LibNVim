@@ -30,6 +30,8 @@ namespace LibNVim.Interfaces
         /// </summary>
         /// <returns></returns>
         char GetCharAtCurrentPosition();
+        char GetChar(VimPoint pos);
+        string GetText(VimSpan span);
 
         bool IsCurrentPositionAtStartOfLine();
         bool IsCurrentPositionAtStartOfLineText();
@@ -67,6 +69,9 @@ namespace LibNVim.Interfaces
         void MoveToEndOfWord();
 
         bool GoToMatch();
+
+        void InsertTextAtCurrentPosition(string text);
+        void InsertTextAtPosition(VimPoint pos, string text);
 
         void OpenLineAbove();
         void OpenLineBelow();

@@ -197,48 +197,63 @@ namespace VsNVim
 
         int IOleCommandTarget.Exec(ref Guid commandGroup, uint commandId, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
         {
-            if (commandGroup == VSConstants.VSStd2K) {
-                switch ((VSConstants.VSStd2KCmdID)commandId) {
-                    case VSConstants.VSStd2KCmdID.INSERTSNIPPET:
-                    case VSConstants.VSStd2KCmdID.SnippetProp:
-                    case VSConstants.VSStd2KCmdID.SnippetRef:
-                    case VSConstants.VSStd2KCmdID.SnippetRepl:
-                    case VSConstants.VSStd2KCmdID.ECMD_INVOKESNIPPETFROMSHORTCUT:
-                    case VSConstants.VSStd2KCmdID.ECMD_CREATESNIPPET:
-                    case VSConstants.VSStd2KCmdID.ECMD_INVOKESNIPPETPICKER2:
-                        break;
+            try {
+                if (commandGroup == VSConstants.VSStd2K) {
+                    switch ((VSConstants.VSStd2KCmdID)commandId) {
+                        case VSConstants.VSStd2KCmdID.INSERTSNIPPET:
+                        case VSConstants.VSStd2KCmdID.SnippetProp:
+                        case VSConstants.VSStd2KCmdID.SnippetRef:
+                        case VSConstants.VSStd2KCmdID.SnippetRepl:
+                        case VSConstants.VSStd2KCmdID.ECMD_INVOKESNIPPETFROMSHORTCUT:
+                        case VSConstants.VSStd2KCmdID.ECMD_CREATESNIPPET:
+                        case VSConstants.VSStd2KCmdID.ECMD_INVOKESNIPPETPICKER2:
+                            break;
+                    }
                 }
-            }
 
-            bool handled = true;
-            VimKeyInput key_input = null;
+                bool handled = true;
+                VimKeyInput key_input = null;
 
-            if (this.IsDebugIgnore(commandGroup, commandId)) {
-                handled = false;
-            }
-            else if (!this.TryConvert(commandGroup, commandId, pvaIn, out key_input)) {
-                handled = false;
-            }
-            else if (!_host.CanProcess(key_input)) {
-                handled = false;
-            }
+                if (this.IsDebugIgnore(commandGroup, commandId)) {
+                    handled = false;
+                }
+                else if (!this.TryConvert(commandGroup, commandId, pvaIn, out key_input)) {
+                    handled = false;
+                }
+                else if (!_host.CanProcess(key_input)) {
+                    handled = false;
+                }
 
-            if (handled) {
-                _host.KeyDown(new VimKeyEventArgs(key_input));
-                return VSConstants.S_OK;
-            }
-            else {
+                if (handled) {
+                    VimKeyEventArgs args = new VimKeyEventArgs(key_input);
+                    _host.KeyDown(args);
+                    if (args.Handled) {
+                        return VSConstants.S_OK;
+                    }
+                }
+
                 return _nextTarget.Exec(commandGroup, commandId, nCmdexecopt, pvaIn, pvaOut);
+            }
+            catch (Exception ex) {
+                return -1;
             }
         }
 
         int IOleCommandTarget.QueryStatus(ref Guid pguidCmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
         {
-            if ((cCmds == 1) && this.TriggerEscapeKey(pguidCmdGroup, prgCmds[0].cmdID, pCmdText)) {
-                prgCmds[0].cmdf = (uint)(OLECMDF.OLECMDF_ENABLED | OLECMDF.OLECMDF_SUPPORTED);
-                return VSConstants.S_OK;
+            try {
+                VimKeyInput ki = null;
+                if ((cCmds == 1) &&
+                    this.TryConvert(pguidCmdGroup, prgCmds[0].cmdID, pCmdText, out ki) &&
+                    _host.CanProcess(ki)) {
+                    prgCmds[0].cmdf = (uint)(OLECMDF.OLECMDF_ENABLED | OLECMDF.OLECMDF_SUPPORTED);
+                    return VSConstants.S_OK;
+                }
+                return _nextTarget.QueryStatus(pguidCmdGroup, cCmds, prgCmds, pCmdText);
             }
-            return _nextTarget.QueryStatus(pguidCmdGroup, cCmds, prgCmds, pCmdText);
+            catch (Exception ex) {
+                return -1;
+            }
         }
 
         #endregion

@@ -5,19 +5,16 @@ using System.Text;
 
 namespace LibNVim.Editions
 {
-    class EditionAppend : AbstractVimEditionRedoable
+    class EditionAppend : AbstractVimEditionInsertText
     {
         public EditionAppend(Interfaces.IVimHost host, int repeat)
             : base(host, repeat)
         {
         }
 
-        public override bool Apply()
+        protected override void OnBeforeInsert()
         {
             this.Host.CaretRight();
-            Modes.ModeInsert mode = new Modes.ModeInsert(this.Host, this.Host.CurrentMode, this);
-            this.Host.CurrentMode = mode;
-            return true;
         }
     }
 }

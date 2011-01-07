@@ -14,7 +14,7 @@ namespace LibNVim.Editions
         public bool ModeSwitched { get; private set; }
         public IVimMode NewMode { get; private set; }
 
-        public AbstractVimEdition(IVimHost host, int repeat)
+        protected AbstractVimEdition(IVimHost host, int repeat)
         {
             this.Host = host;
             this.Repeat = repeat;
@@ -23,6 +23,5 @@ namespace LibNVim.Editions
         }
 
         public abstract bool Apply();
-
     }
 }

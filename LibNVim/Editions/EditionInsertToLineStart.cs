@@ -5,20 +5,16 @@ using System.Text;
 
 namespace LibNVim.Editions
 {
-    class EditionInsertToLineStart : AbstractVimEditionRedoable
+    class EditionInsertToLineStart : AbstractVimEditionInsertText
     {
         public EditionInsertToLineStart(Interfaces.IVimHost host, int repeat)
             : base(host, repeat)
         {
         }
 
-        public override bool Apply()
+        protected override void OnBeforeInsert()
         {
             this.Host.MoveToStartOfLineText();
-
-            Modes.ModeInsert mode = new Modes.ModeInsert(this.Host, this.Host.CurrentMode, this);
-            this.Host.CurrentMode = mode;
-            return true;
         }
     }
 }

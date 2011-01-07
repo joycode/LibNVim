@@ -43,6 +43,8 @@ namespace LibNVim
         public abstract void Redo();
 
         public abstract char GetCharAtCurrentPosition();
+        public abstract char GetChar(VimPoint pos);
+        public abstract string GetText(VimSpan span);
 
         public abstract bool IsCurrentPositionAtStartOfLine();
         public abstract bool IsCurrentPositionAtStartOfLineText();
@@ -73,6 +75,9 @@ namespace LibNVim
         public abstract void MoveToEndOfWord();
 
         public abstract bool GoToMatch();
+
+        public abstract void InsertTextAtCurrentPosition(string text);
+        public abstract void InsertTextAtPosition(VimPoint pos, string text);
 
         public abstract void OpenLineAbove();
         public abstract void OpenLineBelow();

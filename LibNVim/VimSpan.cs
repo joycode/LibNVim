@@ -40,5 +40,32 @@ namespace LibNVim
         {
             return new VimSpan(this.Start, true, this.End, false);
         }
+
+        public bool Contains(VimPoint pos)
+        {
+            if (this.StartClosed) {
+                if (pos.CompareTo(this.Start) < 0) {
+                    return false;
+                }
+            }
+            else {
+                if (pos.CompareTo(this.Start) <= 0) {
+                    return false;
+                }
+            }
+
+            if (this.EndClosed) {
+                if (pos.CompareTo(this.End) > 0) {
+                    return false;
+                }
+            }
+            else {
+                if (pos.CompareTo(this.End) >= 0) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

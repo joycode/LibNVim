@@ -12,7 +12,7 @@ namespace LibNVim.Motions
         public IVimHost Host { get; private set; }
         public int Repeat { get; private set; }
 
-        public AbstractVimMotion(IVimHost host, int repeat)
+        protected AbstractVimMotion(IVimHost host, int repeat)
         {
             this.Host = host;
             this.Repeat = repeat;

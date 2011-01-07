@@ -5,11 +5,14 @@ using System.Text;
 
 namespace LibNVim.Editions
 {
-    class EditionFormatRange : AbstractVimRangeEdition
+    class EditionFormatRange : AbstractVimEditionRedoable, Interfaces.IVimRangeEdition
     {
+        public Interfaces.IVimMotion Motion { get; private set; }
+
         public EditionFormatRange(Interfaces.IVimHost host, int repeat, Interfaces.IVimMotion motion)
-            : base(host, repeat, motion)
+            : base(host, repeat)
         {
+            this.Motion = motion;
         }
 
         public override bool Apply()

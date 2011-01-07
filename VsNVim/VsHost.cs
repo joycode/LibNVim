@@ -126,6 +126,16 @@ namespace VsNVim
             return _textView.Caret.Position.BufferPosition.GetChar();
         }
 
+        public override char GetChar(VimPoint pos)
+        {
+            return this.TranslatePoint(pos).GetChar();
+        }
+
+        public override string GetText(VimSpan span)
+        {
+            return this.TranslateSpan(span).GetText();
+        }
+
         public bool IsCurrentPositionAtEndOfDocument()
         {
             SnapshotPoint pos = _textView.Caret.Position.BufferPosition;
@@ -424,6 +434,23 @@ namespace VsNVim
             }
 
             return true;
+        }
+
+        public override void InsertTextAtCurrentPosition(string text)
+        {
+            ITextEdit edit = _textView.TextBuffer.CreateEdit();
+            edit.Insert(_textView.Caret.Position.BufferPosition.Position, text);
+            edit.Apply();
+        }
+
+        public override void InsertTextAtPosition(VimPoint pos, string text)
+        {
+            ITextEdit edit = _textView.TextBuffer.CreateEdit();
+
+            SnapshotPoint editor_pos = this.TranslatePoint(pos);
+            edit.Insert(editor_pos.Position, text);
+
+            edit.Apply();
         }
 
         public override void OpenLineAbove()

@@ -8,10 +8,14 @@ namespace LibNVim.Editions
 {
     abstract class AbstractVimEditionRedoable : AbstractVimEdition, IVimEditionRedoable
     {
-        public AbstractVimEditionRedoable(IVimHost host, int repeat)
+        protected AbstractVimEditionRedoable(IVimHost host, int repeat)
             : base(host, repeat)
         {
         }
 
+        public virtual bool Redo()
+        {
+            return this.Apply();
+        }
     }
 }

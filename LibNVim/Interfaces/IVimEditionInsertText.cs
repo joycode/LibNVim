@@ -5,8 +5,8 @@ using System.Text;
 
 namespace LibNVim.Interfaces
 {
-    public interface IVimEditionRedoable : IVimEdititon
+    interface IVimEditionInsertText
     {
-        bool Redo();
+        string Text { get; set; }
     }
 }

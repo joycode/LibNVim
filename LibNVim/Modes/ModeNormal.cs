@@ -31,7 +31,7 @@ namespace LibNVim.Modes
             return result;
         }
 
-        public bool CanProcess(VimKeyInput keyInput)
+        public virtual bool CanProcess(VimKeyInput keyInput)
         {
             if (keyInput.Value.Length == 1) {
                 // default is true, but when asked, say no
@@ -48,7 +48,7 @@ namespace LibNVim.Modes
             }
         }
 
-        public void KeyDown(VimKeyEventArgs args)
+        public virtual void KeyDown(VimKeyEventArgs args)
         {
             bool handled = true;
 

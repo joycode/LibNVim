@@ -5,9 +5,12 @@ using System.Text;
 
 namespace LibNVim.Editions
 {
-    class EditionRepeatLastEdition : AbstractVimEdition
+    /// <summary>
+    /// the special '.' ;)
+    /// </summary>
+    class EditionDot : AbstractVimEdition
     {
-        public EditionRepeatLastEdition(Interfaces.IVimHost host, int repeat)
+        public EditionDot(Interfaces.IVimHost host, int repeat)
             : base(host, repeat)
         {
         }
@@ -16,7 +19,7 @@ namespace LibNVim.Editions
         {
             if (this.Host.LastEdition != null) {
                 for (int i = 0; i < this.Repeat; i++) {
-                    if (!this.Host.LastEdition.Apply()) {
+                    if (!this.Host.LastEdition.Redo()) {
                         return false;
                     }
                 }

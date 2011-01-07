@@ -41,10 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractVimHost.cs" />
+    <Compile Include="Editions\AbstractVimEditionInsertText.cs" />
     <Compile Include="Editions\AbstractVimEditionRedoable.cs" />
-    <Compile Include="Editions\AbstractVimRangeEdition.cs" />
     <Compile Include="Editions\EditionAppendToLineEnd.cs" />
-    <Compile Include="Editions\EditionRepeatLastEdition.cs" />
+    <Compile Include="Editions\EditionDot.cs" />
     <Compile Include="Editions\EditionBackspace.cs" />
     <Compile Include="Editions\EditionChangeChar.cs" />
     <Compile Include="Editions\EditionAppend.cs" />
@@ -63,6 +63,7 @@
     <Compile Include="Editions\EditionRedo.cs" />
     <Compile Include="Editions\AbstractVimEdition.cs" />
     <Compile Include="Editions\EditionUndo.cs" />
+    <Compile Include="Interfaces\IVimEditionInsertText.cs" />
     <Compile Include="Interfaces\IVimMotionEndOfLine.cs" />
     <Compile Include="Interfaces\IVimMotionEndOfWord.cs" />
     <Compile Include="Interfaces\IVimMotionLineWise.cs" />

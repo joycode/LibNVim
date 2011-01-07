@@ -25,22 +25,27 @@ namespace VsNVim
 
         public override void TextInput(TextCompositionEventArgs args)
         {
-            VimKeyEventArgs vim_args = new VimKeyEventArgs(new VimKeyInput(args.Text));
+            try {
+                VimKeyEventArgs vim_args = new VimKeyEventArgs(new VimKeyInput(args.Text));
 
-            if (!String.IsNullOrEmpty(args.Text) && 1 == args.Text.Length) {
-                // Only want to intercept text coming from the keyboard.  Let other 
-                // components edit without having to come through us
-                var keyboard = args.Device as KeyboardDevice;
-                if (keyboard != null) {
-                    _host.KeyDown(vim_args);
+                if (!String.IsNullOrEmpty(args.Text) && 1 == args.Text.Length) {
+                    // Only want to intercept text coming from the keyboard.  Let other 
+                    // components edit without having to come through us
+                    var keyboard = args.Device as KeyboardDevice;
+                    if (keyboard != null) {
+                        _host.KeyDown(vim_args);
+                    }
+                }
+
+                if (vim_args.Handled) {
+                    args.Handled = true;
+                }
+                else {
+                    base.TextInput(args);
                 }
             }
-
-            if (vim_args.Handled) {
-                args.Handled = true;
-            }
-            else {
-                base.TextInput(args);
+            catch (Exception ex) {
+                return;
             }
         }
 
