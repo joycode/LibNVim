@@ -138,9 +138,18 @@ namespace VsNVim
             return this.TranslateSpan(span).GetText();
         }
 
-        public bool IsCurrentPositionAtEndOfDocument()
+        public override bool IsCurrentPositionAtStartOfDocument()
         {
             SnapshotPoint pos = _textView.Caret.Position.BufferPosition;
+            ITextSnapshotLine line = pos.GetContainingLine();
+
+            return (line.LineNumber == 0);
+        }
+
+        public override bool IsCurrentPositionAtEndOfDocument()
+        {
+            SnapshotPoint pos = _textView.Caret.Position.BufferPosition;
+
             ITextSnapshotLine line = pos.GetContainingLine();
             if (line.LineNumber != (_textView.TextSnapshot.LineCount - 1))
             {
@@ -148,6 +157,24 @@ namespace VsNVim
             }
 
             return this.IsCurrentPositionAtEndOfLine();
+        }
+
+        public override bool IsCurrentPositionAtFirstLine()
+        {
+            SnapshotPoint pos = _textView.Caret.Position.BufferPosition;
+            return (pos.GetContainingLine().LineNumber == 0);
+        }
+
+        public override bool IsCurrentPositionAtLastLine()
+        {
+            if (_textView.TextSnapshot.LineCount == 0) {
+                return true;
+            }
+
+            SnapshotPoint pos = _textView.Caret.Position.BufferPosition;
+            int end_line = _textView.TextSnapshot.LineCount - 1;
+
+            return (pos.GetContainingLine().LineNumber == end_line);
         }
 
         public override bool IsCurrentPositionAtStartOfLine()
@@ -171,24 +198,6 @@ namespace VsNVim
         {
             SnapshotPoint pos = _textView.Caret.Position.BufferPosition;
             return (pos.Position == pos.GetContainingLine().End.Position);
-        }
-
-        public override bool IsCurrentPositionAtFirstLine()
-        {
-            SnapshotPoint pos = _textView.Caret.Position.BufferPosition;
-            return (pos.GetContainingLine().LineNumber == 0);
-        }
-
-        public override bool IsCurrentPositionAtLastLine()
-        {
-            if (_textView.TextSnapshot.LineCount == 0) {
-                return true;
-            }
-
-            SnapshotPoint pos = _textView.Caret.Position.BufferPosition;
-            int end_line = _textView.TextSnapshot.LineCount - 1;
-
-            return (pos.GetContainingLine().LineNumber == end_line);
         }
 
         private SnapshotPoint TranslatePoint(VimPoint pos)
@@ -415,6 +424,11 @@ namespace VsNVim
         public override void MoveToPreviousCharacter()
         {
             _editorOperations.MoveToPreviousCharacter(false);
+        }
+
+        public override void MoveToNextCharacter()
+        {
+            _editorOperations.MoveToNextCharacter(false);
         }
 
         public override bool GoToMatch()

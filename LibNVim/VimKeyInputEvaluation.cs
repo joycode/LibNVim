@@ -345,7 +345,8 @@ namespace LibNVim
                 }
                 else if (_actionState == ActionState.MotionOfLeftBracket) {
                     if (key_input == Left_Brace) {
-                        return KeyEvalState.None;
+                        action = new Motions.MotionGotoPreviousBrace(_host, _repeatNumber.Value);
+                        return KeyEvalState.Success;
                     }
                     else {
                         return KeyEvalState.Error;
@@ -353,7 +354,8 @@ namespace LibNVim
                 }
                 else if (_actionState == ActionState.MotionOfRightBracket) {
                     if (key_input == Right_Brace) {
-                        return KeyEvalState.None;
+                        action = new Motions.MotionGotoNextBrace(_host, _repeatNumber.Value);
+                        return KeyEvalState.Success;
                     }
                     else {
                         return KeyEvalState.Error;
@@ -415,6 +417,8 @@ namespace LibNVim
             }
             else if (_actionState == ActionState.Motion_gg) {
                 if (key_input == THE_g) {
+                    IVimMotion motion = new Motions.MotionMoveToStartOfDocument(_host, _repeatNumberInRangeEdition.Value);
+                    action = this.GetRangeEdition(_firstRangeEditionChar, _repeatNumber.Value, motion);
                     return KeyEvalState.Success;
                 }
                 else {
@@ -423,6 +427,8 @@ namespace LibNVim
             }
             else if (_actionState == ActionState.MotionOfLeftBracket) {
                 if (key_input == Left_Brace) {
+                    IVimMotion motion = new Motions.MotionGotoPreviousBrace(_host, _repeatNumberInRangeEdition.Value);
+                    action = this.GetRangeEdition(_firstRangeEditionChar, _repeatNumber.Value, motion);
                     return KeyEvalState.Success;
                 }
                 else {
@@ -431,6 +437,8 @@ namespace LibNVim
             }
             else if (_actionState == ActionState.MotionOfRightBracket) {
                 if (key_input == Right_Brace) {
+                    IVimMotion motion = new Motions.MotionGotoNextBrace(_host, _repeatNumberInRangeEdition.Value);
+                    action = this.GetRangeEdition(_firstRangeEditionChar, _repeatNumber.Value, motion);
                     return KeyEvalState.Success;
                 }
                 else {

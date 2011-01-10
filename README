@@ -8,8 +8,8 @@ Modes supported: Normal, Insert
 Have no idea on the need of some simple support in Ex Mode(such as ":w", ":q"), and Search Mode("/xxx", ignorecase default, and no regex)
 
 Motions
-already implemented: 'h', 'H', 'j', 'k', 'l', 'L', '0', '^', '$', 'G', 'w', 'W', 'e', 'E', 'b', 'B', '%', "gg", "zz"
-still in waiting: "[{", "]}", 'f', 'F', 't', 'T', '*', '#'
+already implemented: 'h', 'H', 'j', 'k', 'l', 'L', '0', '^', '$', 'G', 'w', 'W', 'e', 'E', 'b', 'B', '%', "gg", "zz", "[{", "]}"
+still in waiting: 'f', 'F', 't', 'T', '*', '#'
 
 Simple Editions
 already implemented: '.', 'u', 'U', 'x', 'X', 'i', 'I', 'a', 'A', 's', 'S', 'o', 'O', 'C', 'D', 'J'

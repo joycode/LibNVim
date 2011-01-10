@@ -46,11 +46,15 @@ namespace LibNVim
         public abstract char GetChar(VimPoint pos);
         public abstract string GetText(VimSpan span);
 
+        public abstract bool IsCurrentPositionAtStartOfDocument();
+        public abstract bool IsCurrentPositionAtEndOfDocument();
+
+        public abstract bool IsCurrentPositionAtFirstLine();
+        public abstract bool IsCurrentPositionAtLastLine();
+
         public abstract bool IsCurrentPositionAtStartOfLine();
         public abstract bool IsCurrentPositionAtStartOfLineText();
         public abstract bool IsCurrentPositionAtEndOfLine();
-        public abstract bool IsCurrentPositionAtFirstLine();
-        public abstract bool IsCurrentPositionAtLastLine();
 
         public abstract void MoveCursor(VimPoint pos);
         public abstract void Select(VimSpan span);
@@ -74,6 +78,7 @@ namespace LibNVim
         public abstract void MoveToEndOfWord();
 
         public abstract void MoveToPreviousCharacter();
+        public abstract void MoveToNextCharacter();
 
         public abstract bool GoToMatch();
 

@@ -33,11 +33,15 @@ namespace LibNVim.Interfaces
         char GetChar(VimPoint pos);
         string GetText(VimSpan span);
 
+        bool IsCurrentPositionAtStartOfDocument();
+        bool IsCurrentPositionAtEndOfDocument();
+
+        bool IsCurrentPositionAtFirstLine();
+        bool IsCurrentPositionAtLastLine();
+
         bool IsCurrentPositionAtStartOfLine();
         bool IsCurrentPositionAtStartOfLineText();
         bool IsCurrentPositionAtEndOfLine();
-        bool IsCurrentPositionAtFirstLine();
-        bool IsCurrentPositionAtLastLine();
         
         //bool IsCurrentPositionAtEndOfWord();
 
@@ -68,6 +72,7 @@ namespace LibNVim.Interfaces
         void MoveToEndOfWord();
 
         void MoveToPreviousCharacter();
+        void MoveToNextCharacter();
 
         bool GoToMatch();
 

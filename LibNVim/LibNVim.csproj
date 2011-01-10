@@ -77,6 +77,8 @@
     <Compile Include="Interfaces\IVimMotion.cs" />
     <Compile Include="Interfaces\IVimMotionBetweenLines.cs" />
     <Compile Include="Motions\MotionGoToMatch.cs" />
+    <Compile Include="Motions\MotionGotoNextBrace.cs" />
+    <Compile Include="Motions\MotionGotoPreviousBrace.cs" />
     <Compile Include="Motions\MotionMoveToEndOfLine.cs" />
     <Compile Include="Motions\MotionMoveToEndOfWord.cs" />
     <Compile Include="Motions\MotionGotoLine.cs" />
