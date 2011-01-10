@@ -58,6 +58,7 @@ namespace LibNVim
             SimpleEdition, // simple editions, like 'i'
             RangeEdition, // range editions, like "cc"
             RepeatNumberInRangeEdition, // repeat number in RangeEdition, like "d5j"
+            SearchCharInLine, // char search in the line, like 'f'
             Motion_gg, // "gg"
             MotionOfLeftBracket, // "[{", no plans for "[["
             MotionOfRightBracket, // "]}", no plans for "]]"
@@ -76,6 +77,7 @@ namespace LibNVim
                                                          'O', 'p', 'P', 'C', 'D', 'J' };
         // all range editions, and 'y' for copy
         private static char[] Range_Edition_Chars = { 'c', 'd', 'y', '=' };
+        private static char[] Search_Char_In_line_Chars = { 'f', 'F', 't', 'T' };
         private static char THE_g = 'g';
         private static char Left_Bracket = '[';
         private static char Left_Brace = '{';
@@ -90,6 +92,7 @@ namespace LibNVim
         private RepeatNumberStore _repeatNumber = new RepeatNumberStore();
         private RepeatNumberStore _repeatNumberInRangeEdition = new RepeatNumberStore();
         private char _firstRangeEditionChar = '\0';
+        private char _inLineSearchChar = '\0';
 
         /// <summary>
         /// backup the state of RangeEdition,
@@ -233,7 +236,7 @@ namespace LibNVim
             return null;
         }
 
-        private IVimEdititon GetRangeEdition(char keyInput, int repeat, IVimMotion motion)
+        private IVimEdititon GetRangeEdition(char keyInput, IVimMotion motion, int repeat)
         {
             switch (keyInput) {
                 case 'c':
@@ -253,15 +256,38 @@ namespace LibNVim
             return null;
         }
 
+        private IVimMotion GetSearchCharInLineMotion(char searchCommand, char toSearch, int repeat)
+        {
+            switch (searchCommand) {
+                case 'f':
+                    return new Motions.MotionGotoCharSearch(toSearch, _host, repeat);
+                case 'F':
+                    return new Motions.MotionGotoCharSearchBack(toSearch, _host, repeat);
+                case 't':
+                    return new Motions.MotionGotoBeforeCharSearch(toSearch, _host, repeat);
+                case 'T':
+                    return new Motions.MotionGotoBeforeCharSearchBack(toSearch, _host, repeat);
+                default:
+                    Debug.Assert(false);
+                    break;
+            }
+            return null;
+        }
+
         public KeyEvalState Evaluate(VimKeyInput keyInput, out IVimAction action)
         {
             // DFA to interpret keyInput
 
             action = null;
 
-            // the great "Esc", having power to quit immediately
-            if (string.Compare(keyInput.Value, VimKeyInput.Escape) == 0) {
-                return KeyEvalState.Escape;
+            if (keyInput.Value.Length > 1) {
+                // the great "Esc", having power to quit immediately
+                if (string.Compare(keyInput.Value, VimKeyInput.Escape) == 0) {
+                    return KeyEvalState.Escape;
+                }
+                else {
+                    return KeyEvalState.Error;
+                }
             }
 
             Debug.Assert(keyInput.Value.Length == 1);
@@ -283,11 +309,30 @@ namespace LibNVim
                     _repeatNumber.Value = (_repeatNumber.Value * 10) + num;
                 }
                 else if (_actionState == ActionState.RangeEdition) {
-                    _actionState = ActionState.RepeatNumberInRangeEdition;
-                    _repeatNumberInRangeEdition.Value = num;
+                    if (num == 0) {
+                        IVimMotion motion = new Motions.MotionMoveToStartOfLine(_host, 1);
+                        action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
+                        return KeyEvalState.Success;
+                    }
+                    else {
+                        _actionState = ActionState.RepeatNumberInRangeEdition;
+                        _repeatNumberInRangeEdition.Value = num;
+                    }
                 }
                 else if (_actionState == ActionState.RepeatNumberInRangeEdition) {
                     _repeatNumberInRangeEdition.Value = (_repeatNumberInRangeEdition.Value * 10) + num;
+                }
+                else if (_actionState == ActionState.SearchCharInLine) {
+                    if (!_inRangeEdition) {
+                        action = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input, _repeatNumber.Value);
+                        return KeyEvalState.Success;
+                    }
+                    else {
+                        IVimMotion motion = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input, 
+                            _repeatNumberInRangeEdition.Value);
+                        action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
+                        return KeyEvalState.Success;
+                    }
                 }
                 else {
                     return KeyEvalState.Error;
@@ -314,6 +359,11 @@ namespace LibNVim
                         _inRangeEdition = true;
                         return KeyEvalState.InProcess;
                     }
+                    else if (Search_Char_In_line_Chars.Contains(key_input)) {
+                        _actionState = ActionState.SearchCharInLine;
+                        _inLineSearchChar = key_input;
+                        return KeyEvalState.InProcess;
+                    }
                     else if (key_input == THE_g) {
                         _actionState = ActionState.Motion_gg;
                         return KeyEvalState.InProcess;
@@ -333,6 +383,10 @@ namespace LibNVim
                     else {
                         return KeyEvalState.Error;
                     }
+                }
+                else if (_actionState == ActionState.SearchCharInLine) {
+                    action = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input, _repeatNumber.Value);
+                    return KeyEvalState.Success;
                 }
                 else if (_actionState == ActionState.Motion_gg) {
                     if (key_input == THE_g) {
@@ -388,7 +442,7 @@ namespace LibNVim
                 if (Simple_Motion_Chars.Contains(key_input)) {
                     _actionState = ActionState.SimpleMotion;
                     IVimMotion motion = this.GetSimpleMotion(key_input, _repeatNumberInRangeEdition);
-                    action = this.GetRangeEdition(_firstRangeEditionChar, _repeatNumber.Value, motion);
+                    action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
                     return KeyEvalState.Success;
                 }
                 else if (Range_Edition_Chars.Contains(key_input)) {
@@ -399,26 +453,37 @@ namespace LibNVim
                     action = this.GetDoubleRangeEdition(key_input, _repeatNumber.Value * _repeatNumberInRangeEdition.Value);
                     return KeyEvalState.Success;
                 }
+                else if (Search_Char_In_line_Chars.Contains(key_input)) {
+                    _actionState = ActionState.SearchCharInLine;
+                    _inLineSearchChar = key_input;
+                    return KeyEvalState.InProcess;
+                }
                 else if (key_input == THE_g) {
                     _actionState = ActionState.Motion_gg;
-                    return KeyEvalState.Success;
+                    return KeyEvalState.InProcess;
                 }
                 else if (key_input == Left_Bracket) {
                     _actionState = ActionState.MotionOfLeftBracket;
-                    return KeyEvalState.Success;
+                    return KeyEvalState.InProcess;
                 }
                 else if (key_input == Right_Bracket) {
                     _actionState = ActionState.MotionOfRightBracket;
-                    return KeyEvalState.Success;
+                    return KeyEvalState.InProcess;
                 }
                 else {
                     return KeyEvalState.Error;
                 }
             }
+            else if (_actionState == ActionState.SearchCharInLine) {
+                IVimMotion motion = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input, 
+                    _repeatNumberInRangeEdition.Value);
+                action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
+                return KeyEvalState.Success;
+            }
             else if (_actionState == ActionState.Motion_gg) {
                 if (key_input == THE_g) {
                     IVimMotion motion = new Motions.MotionMoveToStartOfDocument(_host, _repeatNumberInRangeEdition.Value);
-                    action = this.GetRangeEdition(_firstRangeEditionChar, _repeatNumber.Value, motion);
+                    action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
                     return KeyEvalState.Success;
                 }
                 else {
@@ -428,7 +493,7 @@ namespace LibNVim
             else if (_actionState == ActionState.MotionOfLeftBracket) {
                 if (key_input == Left_Brace) {
                     IVimMotion motion = new Motions.MotionGotoPreviousBrace(_host, _repeatNumberInRangeEdition.Value);
-                    action = this.GetRangeEdition(_firstRangeEditionChar, _repeatNumber.Value, motion);
+                    action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
                     return KeyEvalState.Success;
                 }
                 else {
@@ -438,7 +503,7 @@ namespace LibNVim
             else if (_actionState == ActionState.MotionOfRightBracket) {
                 if (key_input == Right_Brace) {
                     IVimMotion motion = new Motions.MotionGotoNextBrace(_host, _repeatNumberInRangeEdition.Value);
-                    action = this.GetRangeEdition(_firstRangeEditionChar, _repeatNumber.Value, motion);
+                    action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
                     return KeyEvalState.Success;
                 }
                 else {

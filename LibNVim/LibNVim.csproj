@@ -70,12 +70,15 @@
     <Compile Include="Interfaces\IVimEdititon.cs" />
     <Compile Include="Interfaces\IVimEditionRedoable.cs" />
     <Compile Include="Interfaces\IVimMotionNextWord.cs" />
+    <Compile Include="Interfaces\IVimMotionSearchCharInLine.cs" />
     <Compile Include="Interfaces\IVimMotionWordWise.cs" />
     <Compile Include="Interfaces\IVimRangeEdition.cs" />
     <Compile Include="Interfaces\IVimAction.cs" />
     <Compile Include="Interfaces\IVimMode.cs" />
     <Compile Include="Interfaces\IVimMotion.cs" />
     <Compile Include="Interfaces\IVimMotionBetweenLines.cs" />
+    <Compile Include="Motions\MotionGotoBeforeCharSearch.cs" />
+    <Compile Include="Motions\MotionGotoBeforeCharSearchBack.cs" />
     <Compile Include="Motions\MotionGoToMatch.cs" />
     <Compile Include="Motions\MotionGotoNextBrace.cs" />
     <Compile Include="Motions\MotionGotoPreviousBrace.cs" />
@@ -88,6 +91,8 @@
     <Compile Include="Motions\MotionMoveToEndOfDocument.cs" />
     <Compile Include="Motions\MotionMoveToStartOfDocument.cs" />
     <Compile Include="Motions\MotionScrollLineCenter.cs" />
+    <Compile Include="Motions\MotionGotoCharSearchBack.cs" />
+    <Compile Include="Motions\MotionGotoCharSearch.cs" />
     <Compile Include="VimKeyInputEvaluation.cs" />
     <Compile Include="Modes\ModeInsert.cs" />
     <Compile Include="Modes\ModeNormal.cs" />

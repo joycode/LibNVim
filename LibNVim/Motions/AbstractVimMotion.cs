@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LibNVim.Interfaces;
+using System.Diagnostics;
 
 namespace LibNVim.Motions
 {
@@ -14,6 +15,8 @@ namespace LibNVim.Motions
 
         protected AbstractVimMotion(IVimHost host, int repeat)
         {
+            Debug.Assert(repeat != 0);
+
             this.Host = host;
             this.Repeat = repeat;
         }

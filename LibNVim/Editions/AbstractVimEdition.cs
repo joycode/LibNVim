@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LibNVim.Interfaces;
+using System.Diagnostics;
 
 namespace LibNVim.Editions
 {
@@ -16,6 +17,8 @@ namespace LibNVim.Editions
 
         protected AbstractVimEdition(IVimHost host, int repeat)
         {
+            Debug.Assert(repeat != 0);
+
             this.Host = host;
             this.Repeat = repeat;
             this.ModeSwitched = false;

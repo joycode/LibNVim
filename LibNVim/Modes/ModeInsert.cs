@@ -97,7 +97,7 @@ namespace LibNVim.Modes
             else if (args.KeyInput.Value == VimKeyInput.Escape) {
                 if (!is_unsupported_key_last_input) {
                     // Escape after normal key/char input, do some extra checks
-                    if (this.Host.CurrentPosition.CompareTo(_insertArea.End) != 0) {
+                    if (this.Host.CurrentPosition.CompareTo(_insertArea.End) > 0) {
                         // you can't expect to get precise input text here, because everything is under control, but something wrong happened
                         // so we can only do some poor guess: 
                         // insert area's Start wouldn't change, only need to extend area's End to current cursor's position

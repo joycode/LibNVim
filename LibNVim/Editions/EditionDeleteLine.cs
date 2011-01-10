@@ -14,6 +14,11 @@ namespace LibNVim.Editions
 
         public override bool Apply()
         {
+            if (this.Repeat == 1) {
+                this.Host.DeleteLine();
+                return true;
+            }
+
             VimPoint from = this.Host.CurrentPosition;
             int dst_line = Math.Min(from.X + this.Repeat - 1, this.Host.TextLineCount - 1);
             VimPoint to = new VimPoint(dst_line, 0);

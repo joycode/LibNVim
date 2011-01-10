@@ -47,6 +47,17 @@ namespace LibNVim.Editions
                     // so a manual compensation is needed
                     span = span.GetClosedEnd();
                 }
+                else if (this.Motion is Interfaces.IVimMotionSearchCharInLine) {
+                    span = span.GetClosedEnd();
+                }
+            }
+
+            if (this.Motion is Interfaces.IVimMotionSearchCharInLine) {
+                if (span.Start.CompareTo(span.End) == 0) {
+                    // may be search successfully, but most of time, it reflects a failure, so do nothing for simplification
+                    // TODO can find a better way to handle this class of motion failure?
+                    return false;
+                }
             }
 
             if (this.Motion is IVimMotionBetweenLines) {
