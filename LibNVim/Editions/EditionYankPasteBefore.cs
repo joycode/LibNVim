@@ -17,6 +17,10 @@ namespace LibNVim.Editions
 
         public override bool Apply()
         {
+            if (_register.Text == null) {
+                return false;
+            }
+
             if (_register.IsTextLines) {
                 this.Host.OpenLineAbove();
                 string text = _register.Text;

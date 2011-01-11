@@ -17,6 +17,10 @@ namespace LibNVim.Editions
 
         public override bool Apply()
         {
+            if (_register.Text == null) {
+                return false;
+            }
+
             if (_register.IsTextLines) {
                 string text = _register.Text;
                 for (int i = 0; i < (this.Repeat - 1); i++) {

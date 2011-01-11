@@ -71,13 +71,11 @@ namespace LibNVim.Editions
                 from = new VimPoint(span.Start.X, 0);
                 to = this.Host.GetLineEndPosition(span.End.X);
                 span = new VimSpan(from, to);
-
-                _register.IsTextLines = true;
-                _register.Text = this.Host.GetText(span);
+                
+                _register.Remember(this.Host.GetText(span), true);
             }
             else {
-                _register.IsTextLines = false;
-                _register.Text = this.Host.GetText(span);
+                _register.Remember(this.Host.GetText(span), false);
             }
 
             return true;

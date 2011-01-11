@@ -30,8 +30,7 @@ namespace LibNVim.Editions
                 span = new VimSpan(from, to);
             }
 
-            _register.IsTextLines = true;
-            _register.Text = this.Host.GetText(span);
+            _register.Remember(this.Host.GetText(span), true);
 
             return true;
         }
