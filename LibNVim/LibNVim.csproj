@@ -84,8 +84,8 @@
     <Compile Include="Motions\MotionGotoBeforeCharSearch.cs" />
     <Compile Include="Motions\MotionGotoBeforeCharSearchBack.cs" />
     <Compile Include="Motions\MotionGoToMatch.cs" />
-    <Compile Include="Motions\MotionGotoNextBrace.cs" />
-    <Compile Include="Motions\MotionGotoPreviousBrace.cs" />
+    <Compile Include="Motions\MotionGotoRightBrace.cs" />
+    <Compile Include="Motions\MotionGotoLeftBrace.cs" />
     <Compile Include="Motions\MotionMoveToEndOfLine.cs" />
     <Compile Include="Motions\MotionMoveToEndOfWord.cs" />
     <Compile Include="Motions\MotionGotoLine.cs" />

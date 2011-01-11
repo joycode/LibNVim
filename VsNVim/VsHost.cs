@@ -144,6 +144,200 @@ namespace VsNVim
             return this.TranslateSpan(span).GetText();
         }
 
+        private VimPoint TranslatePoint(SnapshotPoint pos)
+        {
+            ITextSnapshotLine line = pos.GetContainingLine();
+            return new VimPoint(line.LineNumber, pos.Position - line.Start.Position);
+        }
+
+        public override bool FindPreviousChar(char toSearch, out VimPoint pos)
+        {
+            pos = null;
+
+            if (this.IsCurrentPositionAtStartOfDocument()) {
+                return false;
+            }
+
+            bool found = false;
+
+            SnapshotPoint current_pos = _textView.Caret.Position.BufferPosition;
+            ITextSnapshotLine current_line = current_pos.GetContainingLine();
+            do {
+                if (current_pos.Position != current_line.Start.Position) {
+                    current_pos = new SnapshotPoint(current_pos.Snapshot, current_pos.Position - 1);
+                }
+                else {
+                    if (current_line.LineNumber == 0) {
+                        break;
+                    }
+                    current_line = current_line.Snapshot.GetLineFromLineNumber(current_line.LineNumber - 1);
+                    current_pos = current_line.End;
+                }
+
+                if (current_pos.GetChar() == toSearch) {
+                    found = true;
+                    break;
+                }
+            }
+            while (current_pos.Position != 0);
+
+            if (!found) {
+                return false;
+            }
+
+            pos = this.TranslatePoint(current_pos);
+
+            return true;
+        }
+
+        private bool IsPositionAtEndOfDocument(SnapshotPoint pos)
+        {
+            ITextSnapshotLine line = pos.GetContainingLine();
+            if (line.LineNumber < (line.Snapshot.LineCount - 1)) {
+                return false;
+            }
+
+            return (pos.Position == line.End);
+        }
+
+        public override bool FindNextChar(char toSearch, out VimPoint pos)
+        {
+            pos = null;
+
+            if (this.IsCurrentPositionAtEndOfDocument()) {
+                return false;
+            }
+
+            bool found = false;
+
+            SnapshotPoint current_pos = _textView.Caret.Position.BufferPosition;
+            ITextSnapshotLine current_line = current_pos.GetContainingLine();
+            do {
+                if (current_pos.Position != current_line.End.Position) {
+                    current_pos = new SnapshotPoint(current_pos.Snapshot, current_pos.Position + 1);
+                }
+                else {
+                    if (current_line.LineNumber == (current_line.Snapshot.LineCount - 1)) {
+                        break;
+                    }
+                    current_line = current_line.Snapshot.GetLineFromLineNumber(current_line.LineNumber + 1);
+                    current_pos = current_line.Start;
+                }
+
+                if (current_pos.GetChar() == toSearch) {
+                    found = true;
+                    break;
+                }
+            }
+            while (!this.IsPositionAtEndOfDocument(current_pos));
+
+            if (!found) {
+                return false;
+            }
+
+            pos = this.TranslatePoint(current_pos);
+
+            return true;
+        }
+
+        public override bool FindLeftBrace(VimPoint startPosition, out VimPoint pos)
+        {
+            pos = null;
+
+            SnapshotPoint current_pos = this.TranslatePoint(startPosition);
+            if (current_pos.Position == 0) {
+                return false;
+            }
+
+            bool found = false;
+
+            int depth = 1;            
+            ITextSnapshotLine current_line = current_pos.GetContainingLine();
+            do {
+                if (current_pos.Position != current_line.Start.Position) {
+                    current_pos = new SnapshotPoint(current_pos.Snapshot, current_pos.Position - 1);
+                }
+                else {
+                    if (current_line.LineNumber == 0) {
+                        break;
+                    }
+                    current_line = current_line.Snapshot.GetLineFromLineNumber(current_line.LineNumber - 1);
+                    current_pos = current_line.End;
+                }
+
+                char ch = current_pos.GetChar();
+
+                if (ch == '}') {
+                    depth++;
+                }
+                else if (ch == '{') {
+                    depth--;
+                    if (depth == 0) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            while (current_pos.Position != 0);
+
+            if (!found) {
+                return false;
+            }
+
+            pos = this.TranslatePoint(current_pos);
+
+            return true;
+        }
+
+        public override bool FindRightBrace(VimPoint startPosition, out VimPoint pos)
+        {
+            pos = null;
+
+            SnapshotPoint current_pos = this.TranslatePoint(startPosition);
+            if (this.IsPositionAtEndOfDocument(current_pos)) {
+                return false;
+            }
+
+            bool found = false;
+
+            int depth = 1;
+            ITextSnapshotLine current_line = current_pos.GetContainingLine();
+            do {
+                if (current_pos.Position != current_line.End.Position) {
+                    current_pos = new SnapshotPoint(current_pos.Snapshot, current_pos.Position + 1);
+                }
+                else {
+                    if (current_line.LineNumber == (current_line.Snapshot.LineCount - 1)) {
+                        break;
+                    }
+                    current_line = current_line.Snapshot.GetLineFromLineNumber(current_line.LineNumber + 1);
+                    current_pos = current_line.Start;
+                }
+
+                char ch = current_pos.GetChar();
+
+                if (ch == '{') {
+                    depth++;
+                }
+                else if (ch == '}') {
+                    depth--;
+                    if (depth == 0) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            while (!this.IsPositionAtEndOfDocument(current_pos));
+
+            if (!found) {
+                return false;
+            }
+
+            pos = this.TranslatePoint(current_pos);
+
+            return true;
+        }
+
         public override VimPoint GetLineEndPosition(int lineNumber)
         {
             ITextSnapshotLine line = _textView.TextSnapshot.GetLineFromLineNumber(lineNumber);
@@ -443,7 +637,7 @@ namespace VsNVim
             _editorOperations.MoveToNextCharacter(false);
         }
 
-        public override bool GoToMatch()
+        public override bool GotoMatch()
         {
             char[] Left_Brackets = { '(', '[', '{' };
 

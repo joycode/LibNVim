@@ -402,7 +402,7 @@ namespace LibNVim
                 }
                 else if (_actionState == ActionState.MotionOfLeftBracket) {
                     if (key_input == Left_Brace) {
-                        action = new Motions.MotionGotoPreviousBrace(_host, _repeatNumber.Value);
+                        action = new Motions.MotionGotoLeftBrace(_host, _repeatNumber.Value);
                         return KeyEvalState.Success;
                     }
                     else {
@@ -411,7 +411,7 @@ namespace LibNVim
                 }
                 else if (_actionState == ActionState.MotionOfRightBracket) {
                     if (key_input == Right_Brace) {
-                        action = new Motions.MotionGotoNextBrace(_host, _repeatNumber.Value);
+                        action = new Motions.MotionGotoRightBrace(_host, _repeatNumber.Value);
                         return KeyEvalState.Success;
                     }
                     else {
@@ -495,7 +495,7 @@ namespace LibNVim
             }
             else if (_actionState == ActionState.MotionOfLeftBracket) {
                 if (key_input == Left_Brace) {
-                    IVimMotion motion = new Motions.MotionGotoPreviousBrace(_host, _repeatNumberInRangeEdition.Value);
+                    IVimMotion motion = new Motions.MotionGotoLeftBrace(_host, _repeatNumberInRangeEdition.Value);
                     action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
                     return KeyEvalState.Success;
                 }
@@ -505,7 +505,7 @@ namespace LibNVim
             }
             else if (_actionState == ActionState.MotionOfRightBracket) {
                 if (key_input == Right_Brace) {
-                    IVimMotion motion = new Motions.MotionGotoNextBrace(_host, _repeatNumberInRangeEdition.Value);
+                    IVimMotion motion = new Motions.MotionGotoRightBrace(_host, _repeatNumberInRangeEdition.Value);
                     action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
                     return KeyEvalState.Success;
                 }

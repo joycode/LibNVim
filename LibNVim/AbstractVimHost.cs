@@ -51,6 +51,12 @@ namespace LibNVim
         public abstract char GetChar(VimPoint pos);
         public abstract string GetText(VimSpan span);
 
+        public abstract bool FindPreviousChar(char toSearch, out VimPoint pos);
+        public abstract bool FindNextChar(char toSearch, out VimPoint pos);
+
+        public abstract bool FindLeftBrace(VimPoint startPosition, out VimPoint pos);
+        public abstract bool FindRightBrace(VimPoint startPosition, out VimPoint pos);
+
         public abstract VimPoint GetLineEndPosition(int lineNumber);
 
         public abstract bool IsCurrentPositionAtStartOfDocument();
@@ -87,7 +93,7 @@ namespace LibNVim
         public abstract void MoveToPreviousCharacter();
         public abstract void MoveToNextCharacter();
 
-        public abstract bool GoToMatch();
+        public abstract bool GotoMatch();
 
         public abstract void InsertTextAtCurrentPosition(string text);
         public abstract void InsertTextAtPosition(VimPoint pos, string text);

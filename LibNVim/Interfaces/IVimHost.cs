@@ -36,6 +36,12 @@ namespace LibNVim.Interfaces
         char GetChar(VimPoint pos);
         string GetText(VimSpan span);
 
+        bool FindPreviousChar(char toSearch, out VimPoint pos);
+        bool FindNextChar(char toSearch, out VimPoint pos);
+
+        bool FindLeftBrace(VimPoint startPosition, out VimPoint pos);
+        bool FindRightBrace(VimPoint startPosition, out VimPoint pos);
+
         VimPoint GetLineEndPosition(int lineNumber);
 
         bool IsCurrentPositionAtStartOfDocument();
@@ -83,7 +89,7 @@ namespace LibNVim.Interfaces
         void MoveToPreviousCharacter();
         void MoveToNextCharacter();
 
-        bool GoToMatch();
+        bool GotoMatch();
 
         void InsertTextAtCurrentPosition(string text);
         void InsertTextAtPosition(VimPoint pos, string text);

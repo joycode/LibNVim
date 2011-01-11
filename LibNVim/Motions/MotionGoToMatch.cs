@@ -16,7 +16,7 @@ namespace LibNVim.Motions
 
         public override VimPoint Move()
         {
-            this.Host.GoToMatch();
+            this.Host.GotoMatch();
 
             return this.Host.CurrentPosition;
         }
