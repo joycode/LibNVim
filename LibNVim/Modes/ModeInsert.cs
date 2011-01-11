@@ -75,7 +75,17 @@ namespace LibNVim.Modes
                 }
                 else {
                     // extends edition region regarding to last supported special key input
-                    _insertArea = _insertArea.ExtendEndTo(this.Host.CurrentPosition);
+                    if (this.Host.CurrentPosition.CompareTo(_insertArea.End) > 0) {
+                        // Key.Enter or Key.Tab
+                        _insertArea = _insertArea.ExtendEndTo(this.Host.CurrentPosition);
+                    }
+                    else {
+                        // Key.Backspace
+                        if (this.Host.CurrentPosition.CompareTo(_insertArea.Start) > 0) {
+                            // still in original insert area
+                            _insertArea = _insertArea.ExtendEndTo(this.Host.CurrentPosition);
+                        }
+                    }
                 }
                 
                 _activeNoneCharKeyInput = NoneCharKeyInputType.None;
@@ -87,8 +97,15 @@ namespace LibNVim.Modes
                 VimPoint next_pos = new VimPoint(previous_pos.X, previous_pos.Y + 1);
 
                 if (!is_unsupported_key_last_input) {
-                    // in normally char input typing, simply extends insert area to current position
-                    _insertArea = _insertArea.ExtendEndTo(next_pos);
+                    if (_insertArea.End.CompareTo(previous_pos) <= 0) {
+                        // previous_pos may bigger than _insertArea.End in some cases
+                        // in normally char input typing, simply extends insert area's end to current position
+                        _insertArea = _insertArea.ExtendEndTo(next_pos);
+                    }
+                    else {
+                        // Key.Backspace can invalidate current insert area, so need to renew it
+                        _insertArea = new VimSpan(previous_pos, next_pos);
+                    }
                 }
                 else {
                     _insertArea = new VimSpan(previous_pos, next_pos);
