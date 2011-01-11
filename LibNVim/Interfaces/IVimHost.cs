@@ -103,12 +103,6 @@ namespace LibNVim.Interfaces
         void DeleteRange(VimSpan span);
         void DeleteLineRange(VimSpan span);
 
-        void DeleteTo(VimPoint pos);
-
-        void DeleteChar();
-
-        void DeleteWord();
-
         void JoinLines(int beginLine, int endLine);
 
         void ScrollLineCenter();

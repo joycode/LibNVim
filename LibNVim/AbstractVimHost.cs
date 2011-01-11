@@ -105,12 +105,6 @@ namespace LibNVim
         public abstract void DeleteRange(VimSpan span);
         public abstract void DeleteLineRange(VimSpan span);
 
-        public abstract void DeleteTo(VimPoint pos);
-
-        public abstract void DeleteChar();
-
-        public abstract void DeleteWord();
-
         public abstract void JoinLines(int beginLine, int endLine);
 
         public abstract void ScrollLineCenter();

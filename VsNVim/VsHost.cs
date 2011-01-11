@@ -18,7 +18,6 @@ namespace VsNVim
 {
     public sealed class VsHost : AbstractVimHost
     {
-        
         private ITextView _textView = null;
         private _DTE _dte = null;
         private IEditorOperations _editorOperations = null;
@@ -761,25 +760,6 @@ namespace VsNVim
                 }
                 this.SafeExecuteCommand("Edit.DeleteBackwards");
             }
-        }
-
-        public override void DeleteTo(VimPoint pos)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DeleteChar()
-        {
-            if (_editorOperations.CanDelete) {
-                _editorOperations.Delete();
-            }
-        }
-
-        public override void DeleteWord()
-        {
-            //_editorOperations.ScrollLineCenter
-            throw new NotImplementedException();
-            //_editorOperations.MoveToPreviousCharacter
         }
 
         public override void JoinLines(int beginLine, int endLine)
