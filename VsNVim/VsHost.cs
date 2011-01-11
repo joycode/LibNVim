@@ -51,6 +51,12 @@ namespace VsNVim
                 return new VimPoint(x, y);
             }
         }
+
+        public override string LineBreak
+        {
+            get { return "\r\n"; }
+        }
+
         public override int TextLineCount
         {
             get { return _textView.TextSnapshot.LineCount; }
@@ -136,6 +142,12 @@ namespace VsNVim
         public override string GetText(VimSpan span)
         {
             return this.TranslateSpan(span).GetText();
+        }
+
+        public override VimPoint GetLineEndPosition(int lineNumber)
+        {
+            ITextSnapshotLine line = _textView.TextSnapshot.GetLineFromLineNumber(lineNumber);
+            return new VimPoint(lineNumber, line.End.Position - line.Start.Position);
         }
 
         public override bool IsCurrentPositionAtStartOfDocument()

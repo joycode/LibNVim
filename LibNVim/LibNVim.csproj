@@ -63,6 +63,10 @@
     <Compile Include="Editions\EditionRedo.cs" />
     <Compile Include="Editions\AbstractVimEdition.cs" />
     <Compile Include="Editions\EditionUndo.cs" />
+    <Compile Include="Editions\EditionYankPasteBefore.cs" />
+    <Compile Include="Editions\EditionYankLine.cs" />
+    <Compile Include="Editions\EditionYankPaste.cs" />
+    <Compile Include="Editions\EditionYankRange.cs" />
     <Compile Include="Interfaces\IVimEditionInsertText.cs" />
     <Compile Include="Interfaces\IVimMotionEndOfLine.cs" />
     <Compile Include="Interfaces\IVimMotionEndOfWord.cs" />
@@ -108,6 +112,7 @@
     <Compile Include="VimPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interfaces\IVimHost.cs" />
+    <Compile Include="VimRegister.cs" />
     <Compile Include="VimSpan.cs" />
   </ItemGroup>
   <ItemGroup>

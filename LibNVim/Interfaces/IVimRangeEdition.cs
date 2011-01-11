@@ -8,7 +8,7 @@ namespace LibNVim.Interfaces
     /// <summary>
     /// range edition operates on open end spans
     /// </summary>
-    interface IVimRangeEdition : IVimEditionRedoable
+    interface IVimRangeEdition
     {
         IVimMotion Motion { get; }
     }

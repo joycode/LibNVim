@@ -9,12 +9,15 @@ namespace LibNVim.Interfaces
     {
         IVimMode CurrentMode { get; set; }
 
+        VimRegister DefaultRegister { get; }
+        IVimEditionRedoable LastEdition { get; set; }
+
         VimPoint CurrentPosition { get; }
         VimPoint CurrentLineEndPosition { get; }
 
-        int TextLineCount { get; }
+        string LineBreak { get; }
 
-        IVimEditionRedoable LastEdition { get; set; }
+        int TextLineCount { get; }
 
         bool CanProcess(VimKeyInput keyInput);
         void KeyDown(VimKeyEventArgs args);
@@ -32,6 +35,8 @@ namespace LibNVim.Interfaces
         char GetCharAtCurrentPosition();
         char GetChar(VimPoint pos);
         string GetText(VimSpan span);
+
+        VimPoint GetLineEndPosition(int lineNumber);
 
         bool IsCurrentPositionAtStartOfDocument();
         bool IsCurrentPositionAtEndOfDocument();
@@ -61,6 +66,10 @@ namespace LibNVim.Interfaces
         void MoveToStartOfDocument();
         void MoveToEndOfDocument();
 
+        /// <summary>
+        /// line number start from 0
+        /// </summary>
+        /// <param name="lineNumber"></param>
         void GotoLine(int lineNumber);
 
         void MoveToStartOfLine();

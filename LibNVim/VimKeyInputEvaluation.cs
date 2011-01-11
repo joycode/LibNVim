@@ -65,6 +65,9 @@ namespace LibNVim
             Motion_zz, // "zz"
         }
 
+        // currently only deal with default register yank/paste
+        const string Default_Register = "";
+
         /// <summary>
         /// all simple motions plan to support
         /// </summary>
@@ -75,7 +78,7 @@ namespace LibNVim
         /// </summary>
         private static char[] Simple_Edition_Chars = { '.', 'u', 'U', 'x', 'X', 'i', 'I', 'a', 'A', 's', 'S', 'o', 
                                                          'O', 'p', 'P', 'C', 'D', 'J' };
-        // all range editions, and 'y' for copy
+        // all range editions, and 'y' for yank
         private static char[] Range_Edition_Chars = { 'c', 'd', 'y', '=' };
         private static char[] Search_Char_In_line_Chars = { 'f', 'F', 't', 'T' };
         private static char THE_g = 'g';
@@ -130,7 +133,7 @@ namespace LibNVim
                     return new Motions.MotionMoveToEndOfLine(_host, repeat.Value);
                 case 'G':
                     if (repeat.IsDefault) {
-                        return new Motions.MotionMoveToEndOfDocument(_host, repeat.Value);
+                        return new Motions.MotionMoveToEndOfDocument(_host, 1);
                     }
                     else {
                         return new Motions.MotionGotoLine(_host, repeat.Value);
@@ -192,9 +195,9 @@ namespace LibNVim
                 case 'O':
                     return new Editions.EditionOpenLineAbove(_host, repeat);
                 case 'p':
-                    break;
+                    return new Editions.EditionYankPaste(_host.DefaultRegister, _host, repeat);
                 case 'P':
-                    break;
+                    return new Editions.EditionYankPasteBefore(_host.DefaultRegister, _host, repeat);
                 case 'C':
                     return new Editions.EditionChangeRange(_host, 1, new Motions.MotionMoveToEndOfLine(_host, 1));
                 case 'D':
@@ -224,7 +227,7 @@ namespace LibNVim
                 case 'd':
                     return new Editions.EditionDeleteLine(_host, repeat);
                 case 'y':
-                    break;
+                    return new Editions.EditionYankLine(_host.DefaultRegister, _host, repeat);
                 case '=':
                     return new Editions.EditionFormatLine(_host, repeat);
                 default:
@@ -244,7 +247,7 @@ namespace LibNVim
                 case 'd':
                     return new Editions.EditionDeleteRange(_host, repeat, motion);
                 case 'y':
-                    break;
+                    return new Editions.EditionYankRange(_host.DefaultRegister, motion, _host, repeat);
                 case '=':
                     return new Editions.EditionFormatRange(_host, repeat, motion);
                 default:

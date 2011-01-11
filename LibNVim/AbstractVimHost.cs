@@ -11,12 +11,17 @@ namespace LibNVim
 {
     public abstract class AbstractVimHost : IVimHost
     {
+        private VimRegister _defaultRegister = new VimRegister("");
 
         public IVimMode CurrentMode { get; set; }
+
+        public VimRegister DefaultRegister { get { return _defaultRegister; } }
         public IVimEditionRedoable LastEdition { get; set; }
 
         public abstract VimPoint CurrentPosition { get; }
         public abstract VimPoint CurrentLineEndPosition { get; }
+
+        public abstract string LineBreak { get; }
 
         public abstract int TextLineCount { get; }
 
@@ -45,6 +50,8 @@ namespace LibNVim
         public abstract char GetCharAtCurrentPosition();
         public abstract char GetChar(VimPoint pos);
         public abstract string GetText(VimSpan span);
+
+        public abstract VimPoint GetLineEndPosition(int lineNumber);
 
         public abstract bool IsCurrentPositionAtStartOfDocument();
         public abstract bool IsCurrentPositionAtEndOfDocument();
