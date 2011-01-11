@@ -33,6 +33,11 @@ namespace LibNVim.Editions
                 this.Host.InsertTextAtCurrentPosition(text);
             }
 
+            if (this.Host.IsCurrentPositionAtEndOfLine()) {
+                this.Host.MoveToEndOfLine();
+                this.Host.CaretLeft();
+            }
+
             return true;
         }
     }

@@ -9,7 +9,6 @@ namespace LibNVim.Interfaces
     {
         IVimMode CurrentMode { get; set; }
 
-        VimRegister DefaultRegister { get; }
         IVimEditionRedoable LastEdition { get; set; }
 
         VimPoint CurrentPosition { get; }

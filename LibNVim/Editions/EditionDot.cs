@@ -25,6 +25,11 @@ namespace LibNVim.Editions
                 }
             }
 
+            if (this.Host.IsCurrentPositionAtEndOfLine()) {
+                this.Host.MoveToEndOfLine();
+                this.Host.CaretLeft();
+            }
+
             return true;
         }
     }

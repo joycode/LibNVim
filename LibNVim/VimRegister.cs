@@ -7,6 +7,8 @@ namespace LibNVim
 {
     public class VimRegister
     {
+        public static VimRegister DefaultRegister = new VimRegister("");
+
         public string Name { get; private set; }
         public string Text { get; set; }
         public bool IsTextLines { get; set; }

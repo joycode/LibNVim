@@ -11,11 +11,8 @@ namespace LibNVim
 {
     public abstract class AbstractVimHost : IVimHost
     {
-        private VimRegister _defaultRegister = new VimRegister("");
-
         public IVimMode CurrentMode { get; set; }
 
-        public VimRegister DefaultRegister { get { return _defaultRegister; } }
         public IVimEditionRedoable LastEdition { get; set; }
 
         public abstract VimPoint CurrentPosition { get; }

@@ -195,9 +195,9 @@ namespace LibNVim
                 case 'O':
                     return new Editions.EditionOpenLineAbove(_host, repeat);
                 case 'p':
-                    return new Editions.EditionYankPaste(_host.DefaultRegister, _host, repeat);
+                    return new Editions.EditionYankPaste(VimRegister.DefaultRegister, _host, repeat);
                 case 'P':
-                    return new Editions.EditionYankPasteBefore(_host.DefaultRegister, _host, repeat);
+                    return new Editions.EditionYankPasteBefore(VimRegister.DefaultRegister, _host, repeat);
                 case 'C':
                     return new Editions.EditionChangeRange(_host, 1, new Motions.MotionMoveToEndOfLine(_host, 1));
                 case 'D':
@@ -227,7 +227,7 @@ namespace LibNVim
                 case 'd':
                     return new Editions.EditionDeleteLine(_host, repeat);
                 case 'y':
-                    return new Editions.EditionYankLine(_host.DefaultRegister, _host, repeat);
+                    return new Editions.EditionYankLine(VimRegister.DefaultRegister, _host, repeat);
                 case '=':
                     return new Editions.EditionFormatLine(_host, repeat);
                 default:
@@ -247,7 +247,7 @@ namespace LibNVim
                 case 'd':
                     return new Editions.EditionDeleteRange(_host, repeat, motion);
                 case 'y':
-                    return new Editions.EditionYankRange(_host.DefaultRegister, motion, _host, repeat);
+                    return new Editions.EditionYankRange(VimRegister.DefaultRegister, motion, _host, repeat);
                 case '=':
                     return new Editions.EditionFormatRange(_host, repeat, motion);
                 default:
