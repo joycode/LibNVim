@@ -29,8 +29,8 @@ namespace LibNVim.Motions
                 start_pos = pos;
             }
 
-            this.Host.MoveCursor(pos);
             this.Host.GotoLine(pos.X);
+            this.Host.MoveCursor(pos);
 
             return this.Host.CurrentPosition;
         }

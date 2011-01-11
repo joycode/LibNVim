@@ -58,6 +58,11 @@ namespace LibNVim
             SimpleEdition, // simple editions, like 'i'
             RangeEdition, // range editions, like "cc"
             RepeatNumberInRangeEdition, // repeat number in RangeEdition, like "d5j"
+            RangeYank, // yank edition, 'y'
+            RepeatNumberInRangeYank, // repeat number in RangeYank, like "y5w"
+            DoubleQuoteYankBegin, // symbol register yank after meet #"#
+            DoubleQuoteYankSymbolSpecified, // after register symbol specified, such as #"a#
+            RepeatNumberInDoubleQuoteYank, // repeat number like #"a2yw#
             SearchCharInLine, // char search in the line, like 'f'
             Motion_gg, // "gg"
             MotionOfLeftBracket, // "[{", no plans for "[["
@@ -78,9 +83,14 @@ namespace LibNVim
         /// </summary>
         private static char[] Simple_Edition_Chars = { '.', 'u', 'U', 'x', 'X', 'i', 'I', 'a', 'A', 's', 'S', 'o', 
                                                          'O', 'p', 'P', 'C', 'D', 'J' };
-        // all range editions, and 'y' for yank
-        private static char[] Range_Edition_Chars = { 'c', 'd', 'y', '=' };
+        // all range editions
+        private static char[] Range_Edition_Chars = { 'c', 'd', '=' };
         private static char[] Search_Char_In_line_Chars = { 'f', 'F', 't', 'T' };
+        private static char Double_Quote = '"';
+        // duplicated in Range_Edition_Chars
+        private static char THE_y = 'y';
+        private static char THE_Lowercase_p = 'p';
+        private static char THE_Uppercase_P = 'P';
         private static char THE_g = 'g';
         private static char Left_Bracket = '[';
         private static char Left_Brace = '{';
@@ -92,8 +102,11 @@ namespace LibNVim
 
         private ActionState _actionState = ActionState.None;
 
+        private VimRegister _yankRegister = VimRegister.DefaultRegister;
         private RepeatNumberStore _repeatNumber = new RepeatNumberStore();
         private RepeatNumberStore _repeatNumberInRangeEdition = new RepeatNumberStore();
+        private RepeatNumberStore _repeatNumberInRangeYank = new RepeatNumberStore();
+        private RepeatNumberStore _repeatNumberInDoubleQuoteYank = new RepeatNumberStore();
         private char _firstRangeEditionChar = '\0';
         private char _inLineSearchChar = '\0';
 
@@ -101,7 +114,8 @@ namespace LibNVim
         /// backup the state of RangeEdition,
         /// because _actionType may be flushed by state such as ActionType.RepeatNumberInRangeEdition
         /// </summary>
-        private bool _inRangeEdition = false;
+        private bool _inRangeCommand = false;
+        private ActionState _rangeState = ActionState.None;
 
         public VimKeyInputEvaluation(IVimHost host)
         {
@@ -296,76 +310,281 @@ namespace LibNVim
             Debug.Assert(keyInput.Value.Length == 1);
             char key_input = keyInput.Value[0];
 
-            int num = 0;
-            if (int.TryParse(keyInput.Value, out num)) {
-                if (_actionState == ActionState.None) {
-                    if (num == 0) {
-                        action = new Motions.MotionMoveToStartOfLine(_host, 1);
-                        return KeyEvalState.Success;
-                    }
-                    else {
-                        _actionState = ActionState.RepeatNumber;
-                        _repeatNumber.Value = num;
-                    }
+            if (_actionState == ActionState.SearchCharInLine) {
+                if (_rangeState == ActionState.None) {
+                    action = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input, _repeatNumber.Value);
+                    return KeyEvalState.Success;
                 }
-                else if (_actionState == ActionState.RepeatNumber) {
-                    _repeatNumber.Value = (_repeatNumber.Value * 10) + num;
+                else if (_rangeState == ActionState.RangeEdition) {
+                    IVimMotion motion = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input,
+                        _repeatNumberInRangeEdition.Value);
+                    action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
+                    return KeyEvalState.Success;
                 }
-                else if (_actionState == ActionState.RangeEdition) {
-                    if (num == 0) {
-                        IVimMotion motion = new Motions.MotionMoveToStartOfLine(_host, 1);
-                        action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
-                        return KeyEvalState.Success;
-                    }
-                    else {
-                        _actionState = ActionState.RepeatNumberInRangeEdition;
-                        _repeatNumberInRangeEdition.Value = num;
-                    }
-                }
-                else if (_actionState == ActionState.RepeatNumberInRangeEdition) {
-                    _repeatNumberInRangeEdition.Value = (_repeatNumberInRangeEdition.Value * 10) + num;
-                }
-                else if (_actionState == ActionState.SearchCharInLine) {
-                    if (!_inRangeEdition) {
-                        action = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input, _repeatNumber.Value);
-                        return KeyEvalState.Success;
-                    }
-                    else {
-                        IVimMotion motion = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input, 
-                            _repeatNumberInRangeEdition.Value);
-                        action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
-                        return KeyEvalState.Success;
-                    }
+                else if (_rangeState == ActionState.RangeYank) {
+                    IVimMotion motion = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input,
+                        _repeatNumberInRangeEdition.Value);
+                    action = new Editions.EditionYankRange(_yankRegister, motion, _host, 
+                        _repeatNumber.Value * _repeatNumberInDoubleQuoteYank.Value);
+                    return KeyEvalState.Success;
                 }
                 else {
+                    Debug.Assert(false);
                     return KeyEvalState.Error;
                 }
-
+            }
+            else if (_actionState == ActionState.DoubleQuoteYankBegin) {
+                _yankRegister = VimRegisterTable.Singleton.SymbolRegisters[key_input.ToString()];
+                if (_yankRegister == null) {
+                    _yankRegister = VimRegister.DefaultRegister;
+                }
+                _actionState = ActionState.DoubleQuoteYankSymbolSpecified;
                 return KeyEvalState.InProcess;
             }
+            else {  
+                int num = 0;
+                if (int.TryParse(keyInput.Value, out num)) {
+                    if (_actionState == ActionState.None) {
+                        if (num == 0) {
+                            action = new Motions.MotionMoveToStartOfLine(_host, 1);
+                            return KeyEvalState.Success;
+                        }
+                        else {
+                            _actionState = ActionState.RepeatNumber;
+                            _repeatNumber.Value = num;
+                        }
+                    }
+                    else if (_actionState == ActionState.RepeatNumber) {
+                        _repeatNumber.Value = (_repeatNumber.Value * 10) + num;
+                    }
+                    else if (_actionState == ActionState.RangeEdition) {
+                        if (num == 0) {
+                            IVimMotion motion = new Motions.MotionMoveToStartOfLine(_host, 1);
+                            action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
+                            return KeyEvalState.Success;
+                        }
+                        else {
+                            _actionState = ActionState.RepeatNumberInRangeEdition;
+                            _repeatNumberInRangeEdition.Value = num;
+                        }
+                    }
+                    else if (_actionState == ActionState.RepeatNumberInRangeEdition) {
+                        _repeatNumberInRangeEdition.Value = (_repeatNumberInRangeEdition.Value * 10) + num;
+                    }
+                    else if (_actionState == ActionState.RangeYank) {
+                        if (num == 0) {
+                            IVimMotion motion = new Motions.MotionMoveToStartOfLine(_host, 1);
+                            if (_yankRegister == null) {
+                                _yankRegister = VimRegister.DefaultRegister;
+                            }
+                            action = new Editions.EditionYankRange(_yankRegister, motion, _host, _repeatNumber.Value);
+                            return KeyEvalState.Success;
+                        }
+                        else {
+                            _actionState = ActionState.RepeatNumberInRangeYank;
+                            _repeatNumberInRangeYank.Value = num;
+                        }
+                    }
+                    else if (_actionState == ActionState.RepeatNumberInRangeEdition) {
+                        _repeatNumberInRangeYank.Value = (_repeatNumberInRangeYank.Value * 10) + num;
+                    }
+                    else if (_actionState == ActionState.DoubleQuoteYankSymbolSpecified) {
+                        if (num == 0) {
+                            return KeyEvalState.Error;
+                        }
+                        else {
+                            _actionState = ActionState.RepeatNumberInDoubleQuoteYank;
+                            _repeatNumberInDoubleQuoteYank.Value = num;
+                        }
+                    }
+                    else if (_actionState == ActionState.RepeatNumberInDoubleQuoteYank) {
+                        _repeatNumberInDoubleQuoteYank.Value = (_repeatNumberInDoubleQuoteYank.Value * 10) + num;
+                    }
+                    else {
+                        return KeyEvalState.Error;
+                    }
 
-            if (!_inRangeEdition) {
-                if ((_actionState == ActionState.None) || (_actionState == ActionState.RepeatNumber)) {
+                    return KeyEvalState.InProcess;
+                }
+
+                if (_rangeState == ActionState.None) {
+                    if ((_actionState == ActionState.None) || (_actionState == ActionState.RepeatNumber)) {
+                        if (Simple_Motion_Chars.Contains(key_input)) {
+                            _actionState = ActionState.SimpleMotion;
+                            action = this.GetSimpleMotion(key_input, _repeatNumber);
+                            return KeyEvalState.Success;
+                        }
+                        else if (Simple_Edition_Chars.Contains(key_input)) {
+                            _actionState = ActionState.SimpleEdition;
+                            action = this.GetSimpleEdition(key_input, _repeatNumber.Value);
+                            return KeyEvalState.Success;
+                        }
+                        else if (Range_Edition_Chars.Contains(key_input)) {
+                            _actionState = ActionState.RangeEdition;
+                            _rangeState = ActionState.RangeEdition;
+                            _firstRangeEditionChar = key_input;
+                            return KeyEvalState.InProcess;
+                        }
+                        else if (Search_Char_In_line_Chars.Contains(key_input)) {
+                            _actionState = ActionState.SearchCharInLine;
+                            _inLineSearchChar = key_input;
+                            return KeyEvalState.InProcess;
+                        }
+                        else if (key_input == THE_y) {
+                            _actionState = ActionState.RangeYank;
+                            _rangeState = ActionState.RangeYank;
+                            return KeyEvalState.InProcess;
+                        }
+                        else if (key_input == Double_Quote) {
+                            _actionState = ActionState.DoubleQuoteYankBegin;
+                            return KeyEvalState.InProcess;
+                        }
+                        else if (key_input == THE_g) {
+                            _actionState = ActionState.Motion_gg;
+                            return KeyEvalState.InProcess;
+                        }
+                        else if (key_input == Left_Bracket) {
+                            _actionState = ActionState.MotionOfLeftBracket;
+                            return KeyEvalState.InProcess;
+                        }
+                        else if (key_input == Right_Bracket) {
+                            _actionState = ActionState.MotionOfRightBracket;
+                            return KeyEvalState.InProcess;
+                        }
+                        else if (key_input == THE_z) {
+                            _actionState = ActionState.Motion_zz;
+                            return KeyEvalState.InProcess;
+                        }
+                        else {
+                            return KeyEvalState.Error;
+                        }
+                    }
+                    else if (_actionState == ActionState.DoubleQuoteYankBegin) {
+                        _yankRegister = VimRegisterTable.Singleton.SymbolRegisters[key_input.ToString()];
+                        if (_yankRegister == null) {
+                            _yankRegister = VimRegister.DefaultRegister;
+                        }
+                        return KeyEvalState.InProcess;
+                    }
+                    else if ((_actionState == ActionState.DoubleQuoteYankSymbolSpecified) || 
+                        (_actionState == ActionState.RepeatNumberInDoubleQuoteYank)) {
+                        if (key_input == THE_y) {
+                            _actionState = ActionState.RangeYank;
+                            _rangeState = ActionState.RangeYank;
+                            return KeyEvalState.InProcess;
+                        }
+                        else if (key_input == THE_Lowercase_p) {
+                            action = new Editions.EditionYankPaste(_yankRegister, _host, 
+                                _repeatNumber.Value * _repeatNumberInDoubleQuoteYank.Value);
+                            return KeyEvalState.Success;
+                        }
+                        else if (key_input == THE_Uppercase_P) {
+                            action = new Editions.EditionYankPasteBefore(_yankRegister, _host,
+                                _repeatNumber.Value * _repeatNumberInDoubleQuoteYank.Value);
+                            return KeyEvalState.Success;
+                        }
+                        else {
+                            return KeyEvalState.Error;
+                        }
+                    }
+                    else if (_actionState == ActionState.Motion_gg) {
+                        if (key_input == THE_g) {
+                            action = new Motions.MotionGotoLine(_host, _repeatNumber.Value);
+                            return KeyEvalState.Success;
+                        }
+                        else {
+                            return KeyEvalState.Error;
+                        }
+                    }
+                    else if (_actionState == ActionState.MotionOfLeftBracket) {
+                        if (key_input == Left_Brace) {
+                            action = new Motions.MotionGotoLeftBrace(_host, _repeatNumber.Value);
+                            return KeyEvalState.Success;
+                        }
+                        else {
+                            return KeyEvalState.Error;
+                        }
+                    }
+                    else if (_actionState == ActionState.MotionOfRightBracket) {
+                        if (key_input == Right_Brace) {
+                            action = new Motions.MotionGotoRightBrace(_host, _repeatNumber.Value);
+                            return KeyEvalState.Success;
+                        }
+                        else {
+                            return KeyEvalState.Error;
+                        }
+                    }
+                    else if (_actionState == ActionState.Motion_zz) {
+                        if (key_input == THE_z) {
+                            if (_repeatNumber.IsDefault) {
+                                int current_line_number = _host.CurrentPosition.X + 1;
+                                action = new Motions.MotionScrollLineCenter(_host, current_line_number);
+                            }
+                            else {
+                                action = new Motions.MotionScrollLineCenter(_host, _repeatNumber.Value);
+                            }
+                            return KeyEvalState.Success;
+                        }
+                        else {
+                            return KeyEvalState.Error;
+                        }
+                    }
+                    else {
+                        return KeyEvalState.Error;
+                    }
+                }
+
+                Debug.Assert(_rangeState != ActionState.None);
+
+                if ((_actionState == ActionState.RangeEdition) ||
+                    (_actionState == ActionState.RepeatNumberInRangeEdition) || 
+                    (_actionState == ActionState.RangeYank) ||
+                    (_actionState == ActionState.RepeatNumberInRangeYank)) {
                     if (Simple_Motion_Chars.Contains(key_input)) {
                         _actionState = ActionState.SimpleMotion;
-                        action = this.GetSimpleMotion(key_input, _repeatNumber);
-                        return KeyEvalState.Success;
-                    }
-                    else if (Simple_Edition_Chars.Contains(key_input)) {
-                        _actionState = ActionState.SimpleEdition;
-                        action = this.GetSimpleEdition(key_input, _repeatNumber.Value);
+                        IVimMotion motion = this.GetSimpleMotion(key_input, _repeatNumberInRangeEdition);
+                        if (_rangeState == ActionState.RangeEdition) {
+                            action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
+                        }
+                        else if (_rangeState == ActionState.RangeYank) {
+                            action = new Editions.EditionYankRange(_yankRegister, motion, _host,
+                                _repeatNumber.Value * _repeatNumberInDoubleQuoteYank.Value);
+                        }
+                        else {
+                            Debug.Assert(false);
+                            return KeyEvalState.Error;
+                        }
                         return KeyEvalState.Success;
                     }
                     else if (Range_Edition_Chars.Contains(key_input)) {
-                        _actionState = ActionState.RangeEdition;
-                        _firstRangeEditionChar = key_input;
-                        _inRangeEdition = true;
-                        return KeyEvalState.InProcess;
+                        if (_rangeState != ActionState.RangeEdition) {
+                            return KeyEvalState.Error;
+                        }
+                        else {
+                            if (key_input != _firstRangeEditionChar) {
+                                return KeyEvalState.Error;
+                            }
+
+                            action = this.GetDoubleRangeEdition(key_input, 
+                                _repeatNumber.Value * _repeatNumberInRangeEdition.Value);
+                            return KeyEvalState.Success;
+                        }
                     }
                     else if (Search_Char_In_line_Chars.Contains(key_input)) {
                         _actionState = ActionState.SearchCharInLine;
                         _inLineSearchChar = key_input;
                         return KeyEvalState.InProcess;
+                    }
+                    else if (key_input == THE_y) {
+                        if (_rangeState != ActionState.RangeYank) {
+                            return KeyEvalState.Error;
+                        }
+                        else {
+                            // expecting no man will really want doing such complex yank operation like #2"5y3w#, but who knows
+                            action = new Editions.EditionYankLine(_yankRegister, _host,
+                                _repeatNumber.Value * _repeatNumberInDoubleQuoteYank.Value * _repeatNumberInRangeYank.Value);
+                            return KeyEvalState.Success;
+                        }
                     }
                     else if (key_input == THE_g) {
                         _actionState = ActionState.Motion_gg;
@@ -379,142 +598,55 @@ namespace LibNVim
                         _actionState = ActionState.MotionOfRightBracket;
                         return KeyEvalState.InProcess;
                     }
-                    else if (key_input == THE_z) {
-                        _actionState = ActionState.Motion_zz;
-                        return KeyEvalState.InProcess;
-                    }
                     else {
                         return KeyEvalState.Error;
                     }
                 }
-                else if (_actionState == ActionState.SearchCharInLine) {
-                    action = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input, _repeatNumber.Value);
-                    return KeyEvalState.Success;
-                }
-                else if (_actionState == ActionState.Motion_gg) {
-                    if (key_input == THE_g) {
-                        action = new Motions.MotionGotoLine(_host, _repeatNumber.Value);
-                        return KeyEvalState.Success;
-                    }
-                    else {
-                        return KeyEvalState.Error;
-                    }
-                }
-                else if (_actionState == ActionState.MotionOfLeftBracket) {
-                    if (key_input == Left_Brace) {
-                        action = new Motions.MotionGotoLeftBrace(_host, _repeatNumber.Value);
-                        return KeyEvalState.Success;
-                    }
-                    else {
-                        return KeyEvalState.Error;
-                    }
-                }
-                else if (_actionState == ActionState.MotionOfRightBracket) {
-                    if (key_input == Right_Brace) {
-                        action = new Motions.MotionGotoRightBrace(_host, _repeatNumber.Value);
-                        return KeyEvalState.Success;
-                    }
-                    else {
-                        return KeyEvalState.Error;
-                    }
-                }
-                else if (_actionState == ActionState.Motion_zz) {
-                    if (key_input == THE_z) {
-                        if (_repeatNumber.IsDefault) {
-                            int current_line_number = _host.CurrentPosition.X + 1;
-                            action = new Motions.MotionScrollLineCenter(_host, current_line_number);
+                else {
+                    IVimMotion motion = null;
+
+                    if (_actionState == ActionState.Motion_gg) {
+                        if (key_input == THE_g) {
+                            motion = new Motions.MotionMoveToStartOfDocument(_host, _repeatNumberInRangeEdition.Value);
                         }
                         else {
-                            action = new Motions.MotionScrollLineCenter(_host, _repeatNumber.Value);
+                            return KeyEvalState.Error;
                         }
-                        return KeyEvalState.Success;
+                    }
+                    else if (_actionState == ActionState.MotionOfLeftBracket) {
+                        if (key_input == Left_Brace) {
+                            motion = new Motions.MotionGotoLeftBrace(_host, _repeatNumberInRangeEdition.Value);
+                        }
+                        else {
+                            return KeyEvalState.Error;
+                        }
+                    }
+                    else if (_actionState == ActionState.MotionOfRightBracket) {
+                        if (key_input == Right_Brace) {
+                            motion = new Motions.MotionGotoRightBrace(_host, _repeatNumberInRangeEdition.Value);
+                        }
+                        else {
+                            return KeyEvalState.Error;
+                        }
                     }
                     else {
                         return KeyEvalState.Error;
                     }
-                }
-                else {
-                    return KeyEvalState.Error;
-                }
-            }
 
-            Debug.Assert(_inRangeEdition);
-
-            if ((_actionState == ActionState.RangeEdition) ||
-                (_actionState == ActionState.RepeatNumberInRangeEdition)) {
-                if (Simple_Motion_Chars.Contains(key_input)) {
-                    _actionState = ActionState.SimpleMotion;
-                    IVimMotion motion = this.GetSimpleMotion(key_input, _repeatNumberInRangeEdition);
-                    action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
-                    return KeyEvalState.Success;
-                }
-                else if (Range_Edition_Chars.Contains(key_input)) {
-                    if (key_input != _firstRangeEditionChar) {
+                    if (_rangeState == ActionState.RangeEdition) {
+                        action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
+                    }
+                    else if (_rangeState == ActionState.RangeYank) {
+                        action = new Editions.EditionYankRange(_yankRegister, motion, _host,
+                            _repeatNumber.Value * _repeatNumberInDoubleQuoteYank.Value);
+                    }
+                    else {
+                        Debug.Assert(false);
                         return KeyEvalState.Error;
                     }
 
-                    action = this.GetDoubleRangeEdition(key_input, _repeatNumber.Value * _repeatNumberInRangeEdition.Value);
                     return KeyEvalState.Success;
                 }
-                else if (Search_Char_In_line_Chars.Contains(key_input)) {
-                    _actionState = ActionState.SearchCharInLine;
-                    _inLineSearchChar = key_input;
-                    return KeyEvalState.InProcess;
-                }
-                else if (key_input == THE_g) {
-                    _actionState = ActionState.Motion_gg;
-                    return KeyEvalState.InProcess;
-                }
-                else if (key_input == Left_Bracket) {
-                    _actionState = ActionState.MotionOfLeftBracket;
-                    return KeyEvalState.InProcess;
-                }
-                else if (key_input == Right_Bracket) {
-                    _actionState = ActionState.MotionOfRightBracket;
-                    return KeyEvalState.InProcess;
-                }
-                else {
-                    return KeyEvalState.Error;
-                }
-            }
-            else if (_actionState == ActionState.SearchCharInLine) {
-                IVimMotion motion = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input, 
-                    _repeatNumberInRangeEdition.Value);
-                action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
-                return KeyEvalState.Success;
-            }
-            else if (_actionState == ActionState.Motion_gg) {
-                if (key_input == THE_g) {
-                    IVimMotion motion = new Motions.MotionMoveToStartOfDocument(_host, _repeatNumberInRangeEdition.Value);
-                    action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
-                    return KeyEvalState.Success;
-                }
-                else {
-                    return KeyEvalState.Error;
-                }
-            }
-            else if (_actionState == ActionState.MotionOfLeftBracket) {
-                if (key_input == Left_Brace) {
-                    IVimMotion motion = new Motions.MotionGotoLeftBrace(_host, _repeatNumberInRangeEdition.Value);
-                    action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
-                    return KeyEvalState.Success;
-                }
-                else {
-                    return KeyEvalState.Error;
-                }
-            }
-            else if (_actionState == ActionState.MotionOfRightBracket) {
-                if (key_input == Right_Brace) {
-                    IVimMotion motion = new Motions.MotionGotoRightBrace(_host, _repeatNumberInRangeEdition.Value);
-                    action = this.GetRangeEdition(_firstRangeEditionChar, motion, _repeatNumber.Value);
-                    return KeyEvalState.Success;
-                }
-                else {
-                    return KeyEvalState.Error;
-                }
-            }
-            else {
-                return KeyEvalState.Error;
             }
         }
     }

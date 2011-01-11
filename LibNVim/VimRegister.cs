@@ -7,10 +7,33 @@ namespace LibNVim
 {
     public class VimRegister
     {
-        public static VimRegister DefaultRegister = new VimRegister("");
+        public readonly static VimRegister SystemRegister = new VimRegister("0");
+        public readonly static VimRegister DefaultRegister = new VimRegister("+");
+
+        private string _text = null;
 
         public string Name { get; private set; }
-        public string Text { get; private set; }
+        public string Text
+        {
+            get
+            {
+                if (this.IsSystemRegister()) {
+                    throw new NotImplementedException();
+                }
+                else {
+                    return _text;
+                }
+            }
+            private set
+            {
+                if (this.IsSystemRegister()) {
+                    throw new NotImplementedException();
+                }
+                else {
+                    _text = value;
+                }
+            }
+        }
         public bool IsTextLines { get; private set; }
 
         public VimRegister(string name)
@@ -22,6 +45,11 @@ namespace LibNVim
         {
             this.Text = text;
             this.IsTextLines = isTextLines;
+        }
+
+        private bool IsSystemRegister()
+        {
+            return (this == SystemRegister);
         }
     }
 }
