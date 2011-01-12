@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibNVim", "LibNVim\LibNVim.csproj", "{04B88D47-1BAF-4BC7-8270-C5F8AD87BFE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVimVS", "VsNVim\NVimVS.csproj", "{F63A834E-53BB-4E1E-84D0-BAC9BFF78877}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0EEF5CD3-FFD1-425C-A699-4E304CF8226C}"
 	ProjectSection(SolutionItems) = preProject
 		License.txt = License.txt
 		README = README
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVimVS", "NVimVS\NVimVS.csproj", "{F63A834E-53BB-4E1E-84D0-BAC9BFF78877}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
