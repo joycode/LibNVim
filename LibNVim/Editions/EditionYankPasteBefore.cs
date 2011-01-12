@@ -17,22 +17,23 @@ namespace LibNVim.Editions
 
         public override bool Apply()
         {
-            if (_register.Text == null) {
+            string reg_text = _register.GetText(this.Host);
+            if (reg_text == null) {
                 return false;
             }
 
             if (_register.IsTextLines) {
                 this.Host.OpenLineAbove();
-                string text = _register.Text;
+                string text = reg_text;
                 for (int i = 0; i < (this.Repeat - 1); i++) {
-                    text = text + this.Host.LineBreak + _register.Text;
+                    text = text + this.Host.LineBreak + reg_text;
                 }
                 this.Host.InsertTextAtCurrentPosition(text);
             }
             else {
                 string text = "";
                 for (int i = 0; i < this.Repeat; i++) {
-                    text = text + _register.Text;
+                    text = text + reg_text;
                 }
                 this.Host.InsertTextAtCurrentPosition(text);
             }

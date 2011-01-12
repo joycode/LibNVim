@@ -12,6 +12,8 @@ namespace LibNVim.Interfaces
         VimPoint CurrentPosition { get; }
         VimPoint CurrentLineEndPosition { get; }
 
+        string ClipboardText { get; set; }
+
         string LineBreak { get; }
 
         int TextLineCount { get; }

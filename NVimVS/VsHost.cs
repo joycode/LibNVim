@@ -55,6 +55,21 @@ namespace NVimVS
             }
         }
 
+        public override string ClipboardText
+        {
+            get
+            {
+                if (!System.Windows.Clipboard.ContainsText(System.Windows.TextDataFormat.Text)) {
+                    return null;
+                }
+                return System.Windows.Clipboard.GetText(System.Windows.TextDataFormat.Text);
+            }
+            set
+            {
+                System.Windows.Clipboard.SetText(value, System.Windows.TextDataFormat.Text);
+            }
+        }
+
         public override string LineBreak
         {
             get { return "\r\n"; }

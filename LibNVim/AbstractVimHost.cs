@@ -16,6 +16,8 @@ namespace LibNVim
         public abstract VimPoint CurrentPosition { get; }
         public abstract VimPoint CurrentLineEndPosition { get; }
 
+        public abstract string ClipboardText { get; set; }
+
         public abstract string LineBreak { get; }
 
         public abstract int TextLineCount { get; }

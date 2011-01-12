@@ -22,6 +22,7 @@ namespace LibNVim.Editions
             VimPoint to = new VimPoint(from.X, Math.Max(from.Y - this.Repeat, 0));
 
             VimSpan span = new VimSpan(to, from);
+            VimRegister.YankRangeToDefaultRegister(this.Host, span);
             this.Host.DeleteRange(span);
 
             return true;

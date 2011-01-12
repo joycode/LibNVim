@@ -72,10 +72,10 @@ namespace LibNVim.Editions
                 to = this.Host.GetLineEndPosition(span.End.X);
                 span = new VimSpan(from, to);
                 
-                _register.Remember(this.Host.GetText(span), true);
+                _register.Remember(this.Host.GetText(span), true, this.Host);
             }
             else {
-                _register.Remember(this.Host.GetText(span), false);
+                _register.Remember(this.Host.GetText(span), false, this.Host);
             }
 
             return true;

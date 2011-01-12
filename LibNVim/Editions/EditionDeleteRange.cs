@@ -61,9 +61,11 @@ namespace LibNVim.Editions
             }
 
             if (this.Motion is IVimMotionBetweenLines) {
+                VimRegister.YankLineToDefaultRegister(this.Host, span);
                 this.Host.DeleteLineRange(span);
             }
             else {
+                VimRegister.YankRangeToDefaultRegister(this.Host, span);
                 this.Host.DeleteRange(span);
             }
 
