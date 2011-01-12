@@ -6,11 +6,11 @@ using System.Text;
 namespace LibNVim.Motions
 {
     /// <summary>
-    /// '*'
+    /// '#'
     /// </summary>
-    class MotionGotoWordFindStar : AbstractVimMotion
+    class MotionGotoWordSharp : AbstractVimMotion
     {
-        public MotionGotoWordFindStar(Interfaces.IVimHost host, int repeat)
+        public MotionGotoWordSharp(Interfaces.IVimHost host, int repeat)
             : base(host, repeat)
         {
         }
@@ -24,9 +24,10 @@ namespace LibNVim.Motions
             }
 
             VimGlobalInfo.IncrementalSearchWord = word;
+            VimGlobalInfo.IsWholeWordSearch = true;
 
             for (int i = 0; i < this.Repeat; i++) {
-                this.Host.FindNextWord(word);
+                this.Host.FindPreviousWord(word, VimGlobalInfo.IsWholeWordSearch);
             }
 
             return this.Host.CurrentPosition;

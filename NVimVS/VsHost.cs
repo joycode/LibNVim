@@ -386,16 +386,15 @@ namespace NVimVS
             return true;
         }
 
-        public override bool FindWord(string word)
-        {
-            return this.SafeExecuteCommand("Edit.Find", word);
-        }
-
-        public override bool FindNextWord(string word)
+        public override bool FindNextWord(string word, bool wholeWord)
         {
             _editorOperations.MoveToNextCharacter(false);
 
-            FindOptions opts = FindOptions.WholeWord;
+            FindOptions opts = FindOptions.None;
+            if (wholeWord) {
+                opts |= FindOptions.WholeWord;
+            }
+
             SnapshotSpan? span = _textSearchService.FindNext(_textView.Caret.Position.BufferPosition.Position, true, 
                 (new FindData(word, _textView.TextSnapshot, opts, 
                 _textStructureNavigatorSelectorService.GetTextStructureNavigator(_textView.TextBuffer))));
@@ -410,9 +409,13 @@ namespace NVimVS
             return true;
         }
 
-        public override bool FindPreviousWord(string word)
+        public override bool FindPreviousWord(string word, bool wholeWord)
         {
-            FindOptions opts = FindOptions.WholeWord | FindOptions.SearchReverse;
+            FindOptions opts = FindOptions.SearchReverse;
+            if (wholeWord) {
+                opts |= FindOptions.WholeWord;
+            }
+
             SnapshotSpan? span = _textSearchService.FindNext(_textView.Caret.Position.BufferPosition.Position, true,
                 (new FindData(word, _textView.TextSnapshot, opts,
                 _textStructureNavigatorSelectorService.GetTextStructureNavigator(_textView.TextBuffer))));

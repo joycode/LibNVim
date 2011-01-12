@@ -10,5 +10,6 @@ namespace LibNVim
     {
         public static IVimEditionRedoable LastEdition = null;
         public static string IncrementalSearchWord = null;
+        public static bool IsWholeWordSearch = false;
     }
 }

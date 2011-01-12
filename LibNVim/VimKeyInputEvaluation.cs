@@ -64,14 +64,14 @@ namespace LibNVim
             DoubleQuoteYankSymbolSpecified, // after register symbol specified, such as #"a#
             RepeatNumberInDoubleQuoteYank, // repeat number like #"a2yw#
             SearchCharInLine, // char search in the line, like 'f'
+            SearchWord, // search word in the file
             Motion_gg, // "gg"
             MotionOfLeftBracket, // "[{", no plans for "[["
             MotionOfRightBracket, // "]}", no plans for "]]"
             Motion_zz, // "zz"
         }
 
-        // currently only deal with default register yank/paste
-        const string Default_Register = "";
+        public readonly static string Status_Char_Backspace = "\b";
 
         /// <summary>
         /// all simple motions plan to support
@@ -87,6 +87,7 @@ namespace LibNVim
         private static char[] Range_Edition_Chars = { 'c', 'd', '=' };
         private static char[] Search_Char_In_line_Chars = { 'f', 'F', 't', 'T' };
         private static char Double_Quote = '"';
+        private static char Back_Slash = '/';
         // duplicated in Range_Edition_Chars
         private static char THE_y = 'y';
         private static char THE_Lowercase_p = 'p';
@@ -109,6 +110,7 @@ namespace LibNVim
         private RepeatNumberStore _repeatNumberInDoubleQuoteYank = new RepeatNumberStore();
         private char _firstRangeEditionChar = '\0';
         private char _inLineSearchChar = '\0';
+        private string _wordToSearch = "";
 
         /// <summary>
         /// backup the state of RangeEdition,
@@ -167,9 +169,9 @@ namespace LibNVim
                 case '%':
                     return new Motions.MotionGoToMatch(_host, repeat.Value);
                 case '*':
-                    return new Motions.MotionGotoWordFindStar(_host, repeat.Value);
+                    return new Motions.MotionGotoWordStar(_host, repeat.Value);
                 case '#':
-                    return new Motions.MotionGotoWordFindSharp(_host, repeat.Value);
+                    return new Motions.MotionGotoWordSharp(_host, repeat.Value);
                 case 'n':
                     return new Motions.MotionGotoWordFindNext(_host, repeat.Value);
                 case 'N':
@@ -297,26 +299,69 @@ namespace LibNVim
             return null;
         }
 
-        public KeyEvalState Evaluate(VimKeyInput keyInput, out IVimAction action)
+        /// <summary>
+        /// the output of statusChar controls the "Status Text" to display
+        /// </summary>
+        /// <param name="keyInput"></param>
+        /// <param name="action"></param>
+        /// <param name="statusChar"></param>
+        /// <returns></returns>
+        public KeyEvalState Evaluate(VimKeyInput keyInput, out IVimAction action, out string statusChar)
         {
             // DFA to interpret keyInput
 
             action = null;
+            statusChar = "";
 
             if (keyInput.Value.Length > 1) {
-                // the great "Esc", having power to quit immediately
+                // dealing with special key inputs
                 if (string.Compare(keyInput.Value, VimKeyInput.Escape) == 0) {
+                    // the great "Esc", having power to quit immediately
                     return KeyEvalState.Escape;
                 }
                 else {
-                    return KeyEvalState.Error;
+                    if (_actionState == ActionState.SearchWord) {
+                        // in search word state, only accepts Key.Enter, Key.Backspace as special key input, else just ignores
+                        if (string.Compare(keyInput.Value, VimKeyInput.Enter) == 0) {
+                            if (string.IsNullOrWhiteSpace(_wordToSearch)) {
+                                return KeyEvalState.Error;
+                            }
+                            else {
+                                action = new Motions.MotionGotoWordSearch(_wordToSearch, _host);
+                                return KeyEvalState.Success;
+                            }
+                        }
+                        else if (string.Compare(keyInput.Value, VimKeyInput.Backspace) == 0) {
+                            if (_wordToSearch.Length == 0) {
+                                return KeyEvalState.Error;
+                            }
+                            else {
+                                _wordToSearch = _wordToSearch.Substring(0, _wordToSearch.Length - 1);
+
+                                statusChar = Status_Char_Backspace;
+                                return KeyEvalState.InProcess;
+                            }
+                        }
+                        else {
+                            return KeyEvalState.InProcess;
+                        }
+                    }
+                    else {
+                        return KeyEvalState.Error;
+                    }
                 }
             }
 
             Debug.Assert(keyInput.Value.Length == 1);
             char key_input = keyInput.Value[0];
 
-            if (_actionState == ActionState.SearchCharInLine) {
+            statusChar = key_input.ToString();
+
+            if (_actionState == ActionState.SearchWord) {
+                _wordToSearch += key_input;
+                return KeyEvalState.InProcess;
+            }
+            else if (_actionState == ActionState.SearchCharInLine) {
                 if (_rangeState == ActionState.None) {
                     action = this.GetSearchCharInLineMotion(_inLineSearchChar, key_input, _repeatNumber.Value);
                     return KeyEvalState.Success;
@@ -347,7 +392,7 @@ namespace LibNVim
                 _actionState = ActionState.DoubleQuoteYankSymbolSpecified;
                 return KeyEvalState.InProcess;
             }
-            else {  
+            else {
                 int num = 0;
                 if (int.TryParse(keyInput.Value, out num)) {
                     if (_actionState == ActionState.None) {
@@ -435,6 +480,16 @@ namespace LibNVim
                             _actionState = ActionState.SearchCharInLine;
                             _inLineSearchChar = key_input;
                             return KeyEvalState.InProcess;
+                        }
+                        else if (key_input == Back_Slash) {
+                            if (_actionState != ActionState.None) {
+                                // can only enter ActionState.SearchWord from ActionState.None
+                                return KeyEvalState.Error;
+                            }
+                            else {
+                                _actionState = ActionState.SearchWord;
+                                return KeyEvalState.InProcess;
+                            }
                         }
                         else if (key_input == THE_y) {
                             _actionState = ActionState.RangeYank;

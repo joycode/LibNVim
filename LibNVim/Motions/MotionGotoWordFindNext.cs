@@ -20,7 +20,7 @@ namespace LibNVim.Motions
             }
 
             for (int i = 0; i < this.Repeat; i++) {
-                this.Host.FindNextWord(VimGlobalInfo.IncrementalSearchWord);
+                this.Host.FindNextWord(VimGlobalInfo.IncrementalSearchWord, VimGlobalInfo.IsWholeWordSearch);
             }
 
             return this.Host.CurrentPosition;

@@ -47,9 +47,8 @@ namespace LibNVim.Interfaces
         bool FindLeftBrace(VimPoint startPosition, out VimPoint pos);
         bool FindRightBrace(VimPoint startPosition, out VimPoint pos);
 
-        bool FindWord(string word);
-        bool FindNextWord(string word);
-        bool FindPreviousWord(string word);
+        bool FindNextWord(string word, bool wholeWord);
+        bool FindPreviousWord(string word, bool wholeWord);
 
         VimPoint GetLineEndPosition(int lineNumber);
 

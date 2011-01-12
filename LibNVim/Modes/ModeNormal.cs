@@ -35,18 +35,25 @@ namespace LibNVim.Modes
         public virtual bool CanProcess(VimKeyInput keyInput)
         {
             if (keyInput.Value.Length == 1) {
-                // default is true, but when asked, say no
-                return false;
+                return true;
             }
             else {
-                // special command input
-                if (keyInput.Value.Equals(VimKeyInput.Escape)) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
+                return true;
+                //// special key input
+                //if (keyInput.Value.Equals(VimKeyInput.Escape) ||
+                //    keyInput.Value.Equals(VimKeyInput.Backspace) ||
+                //    keyInput.Value.Equals(VimKeyInput.Enter)) {
+                //    return true;
+                //}
+                //else {
+                //    return false;
+                //}
             }
+        }
+
+        private bool IsSpecialKeyInput(string keyInput)
+        {
+            return (keyInput.Length > 1);
         }
 
         private void ResetKeyValuationStatus()
@@ -65,8 +72,24 @@ namespace LibNVim.Modes
             }
 
             IVimAction action = null;
-            VimKeyInputEvaluation.KeyEvalState eval_state = _keyInputEvaluation.Evaluate(args.KeyInput, out action);
-            if (eval_state == VimKeyInputEvaluation.KeyEvalState.Success) {
+            string status_char = "";
+            VimKeyInputEvaluation.KeyEvalState eval_state = _keyInputEvaluation.Evaluate(args.KeyInput, out action, out status_char);
+            if (eval_state == VimKeyInputEvaluation.KeyEvalState.InProcess) {
+                Debug.Assert(status_char != null);
+                if (status_char == VimKeyInputEvaluation.Status_Char_Backspace) {
+                    if (_statusText.Length > 0) {
+                        _statusText = _statusText.Substring(0, _statusText.Length - 1);
+                    }
+                    else {
+                        Debug.Assert(false);
+                    }
+                }
+                else {
+                    _statusText += status_char;
+                }
+                this.Host.UpdateStatus(_statusText);
+            }
+            else if (eval_state == VimKeyInputEvaluation.KeyEvalState.Success) {
                 if (action != null) {
                     // TODO live with some actions unimplemented
                     if (action is IVimMotion) {
@@ -86,11 +109,10 @@ namespace LibNVim.Modes
                 this.ResetKeyValuationStatus();
             }
             else if (eval_state == VimKeyInputEvaluation.KeyEvalState.Error) {
+                if (this.IsSpecialKeyInput(args.KeyInput.Value)) {
+                    handled = false;
+                }
                 this.ResetKeyValuationStatus();
-            }
-            else if (eval_state == VimKeyInputEvaluation.KeyEvalState.InProcess) {
-                _statusText += args.KeyInput.Value;
-                this.Host.UpdateStatus(_statusText);
             }
             else {
                 Debug.Assert(false);
