@@ -87,6 +87,11 @@ namespace VsNVim
             SystemSounds.Beep.Play();
         }
 
+        public override void UpdateStatus(string text)
+        {
+            _dte.StatusBar.Text = text;
+        }
+
         public override void DismissDisplayWindows()
         {
             if (_completionBroker.IsCompletionActive(_textView))

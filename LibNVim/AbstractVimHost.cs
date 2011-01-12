@@ -39,6 +39,7 @@ namespace LibNVim
         }
 
         public abstract void Beep();
+        public abstract void UpdateStatus(string text);
         public abstract void DismissDisplayWindows();
 
         public abstract void Undo();

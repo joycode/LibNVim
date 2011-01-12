@@ -22,6 +22,7 @@ namespace LibNVim.Interfaces
         void KeyDown(VimKeyEventArgs args);
 
         void Beep();
+        void UpdateStatus(string text);
         void DismissDisplayWindows();
 
         void Undo();

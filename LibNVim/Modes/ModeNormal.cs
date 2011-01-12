@@ -10,6 +10,7 @@ namespace LibNVim.Modes
     class ModeNormal : IVimMode
     {
         private VimKeyInputEvaluation _keyInputEvaluation = null;
+        private string _statusText = "";
 
         public IVimHost Host { get; private set; }
         public VimCaretShape CaretShape { get { return VimCaretShape.Block; } }
@@ -48,6 +49,13 @@ namespace LibNVim.Modes
             }
         }
 
+        private void ResetKeyValuationStatus()
+        {
+            _keyInputEvaluation = null;
+            _statusText = "";
+            this.Host.UpdateStatus(_statusText);
+        }
+
         public virtual void KeyDown(VimKeyEventArgs args)
         {
             bool handled = true;
@@ -72,19 +80,21 @@ namespace LibNVim.Modes
                     }
                 }
 
-                _keyInputEvaluation = null;
+                this.ResetKeyValuationStatus();
             }
             else if (eval_state == VimKeyInputEvaluation.KeyEvalState.Escape) {
-                _keyInputEvaluation = null;
+                this.ResetKeyValuationStatus();
             }
             else if (eval_state == VimKeyInputEvaluation.KeyEvalState.Error) {
-                _keyInputEvaluation = null;
+                this.ResetKeyValuationStatus();
             }
             else if (eval_state == VimKeyInputEvaluation.KeyEvalState.InProcess) {
+                _statusText += args.KeyInput.Value;
+                this.Host.UpdateStatus(_statusText);
             }
             else {
                 Debug.Assert(false);
-                _keyInputEvaluation = null;
+                this.ResetKeyValuationStatus();
             }
 
             args.Handled = handled;
