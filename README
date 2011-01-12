@@ -8,7 +8,7 @@ No plans for ":w", ":q", have no ideas on the need of Visual Mode
 
 Modes supported: Normal, Insert
 
-Motions supported: 'h', 'H', 'j', 'k', 'l', 'L', '0', '^', '$', 'G', 'w', 'W', 'e', 'E', 'b', 'B', '%', "gg", "zz", "[{", "]}", 'f', 'F', 't', 'T'
+Motions supported: 'h', 'H', 'j', 'k', 'l', 'L', '0', '^', '$', 'G', 'w', 'W', 'e', 'E', 'b', 'B', '%', "gg", "zz", "[{", "]}"
 
 Simple Editions supported: '.', 'u', 'U', 'x', 'X', 'i', 'I', 'a', 'A', 's', 'S', 'o', 'O', 'C', 'D', 'J'
 
@@ -16,4 +16,4 @@ Range Editions supported: 'cX', 'dX', '=X'
 
 Copy & Paste supported: "yX", 'p', 'P'
 
-Simple Search supported: '*', '#', 'n', 'N', "/xxx"(a simple dialect, ignorecase default, and no regex)
+Simple Search supported: 'f', 'F', 't', 'T', '*', '#', 'n', 'N', "/xxx"(a simple dialect, ignorecase default, and no regex)
