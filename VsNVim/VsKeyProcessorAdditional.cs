@@ -8,7 +8,7 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using LibNVim;
 
-namespace VsNVim
+namespace NVimVS
 {
     /// <summary>
     /// This class needs to intercept commands which the core VIM engine wants to process and call into the VIM engine 

@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using LibNVim;
 
-namespace VsNVim.VsVim
+namespace NVimVS.VsVim
 {
     public interface IBlockCaret
     {

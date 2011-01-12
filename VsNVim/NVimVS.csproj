@@ -9,8 +9,8 @@
     <ProjectGuid>{F63A834E-53BB-4E1E-84D0-BAC9BFF78877}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VsNVim</RootNamespace>
-    <AssemblyName>VsNVim</AssemblyName>
+    <RootNamespace>NVimVS</RootNamespace>
+    <AssemblyName>NVimVS</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>

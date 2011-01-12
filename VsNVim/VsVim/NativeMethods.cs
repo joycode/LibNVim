@@ -5,7 +5,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio;
 
-namespace VsNVim.VsVim
+namespace NVimVS.VsVim
 {
     internal static class NativeMethods
     {

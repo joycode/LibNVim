@@ -14,11 +14,11 @@ using Microsoft.VisualStudio.Shell;
 using EnvDTE;
 using Microsoft.VisualStudio.Language.Intellisense;
 
-namespace VsNVim
+namespace NVimVS
 {
     [Export(typeof(IKeyProcessorProvider))]
     [Order(Before = "VisualStudioKeyProcessor")]
-    [Name("VsNVim")]
+    [Name("NVimVS")]
     [Export(typeof(IVsTextViewCreationListener))]
     [ContentType("text")]
     [TextViewRole(PredefinedTextViewRoles.Document)]

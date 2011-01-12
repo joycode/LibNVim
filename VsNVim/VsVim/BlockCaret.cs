@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.Text.Formatting;
 using System.Windows;
 using LibNVim;
 
-namespace VsNVim.VsVim
+namespace NVimVS.VsVim
 {
     internal sealed class BlockCaret : IBlockCaret
     {

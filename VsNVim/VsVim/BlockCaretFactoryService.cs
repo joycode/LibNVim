@@ -7,7 +7,7 @@ using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Utilities;
 using Microsoft.VisualStudio.Text.Editor;
 
-namespace VsNVim.VsVim
+namespace NVimVS.VsVim
 {
     internal sealed class BlockCaretFactoryService : IBlockCaretFactoryService
     {

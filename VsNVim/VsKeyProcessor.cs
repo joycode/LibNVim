@@ -7,7 +7,7 @@ using System.Windows.Input;
 using LibNVim;
 using LibNVim.Interfaces;
 
-namespace VsNVim
+namespace NVimVS
 {
     public class VsKeyProcessor : KeyProcessor
     {

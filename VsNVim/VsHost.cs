@@ -14,7 +14,7 @@ using Microsoft.VisualStudio.Text.Formatting;
 using System.Diagnostics;
 using Microsoft.VisualStudio.Language.Intellisense;
 
-namespace VsNVim
+namespace NVimVS
 {
     public sealed class VsHost : AbstractVimHost
     {
