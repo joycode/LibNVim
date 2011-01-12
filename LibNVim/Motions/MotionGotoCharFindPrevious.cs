@@ -6,13 +6,13 @@ using System.Text;
 namespace LibNVim.Motions
 {
     /// <summary>
-    /// 'T'
+    /// 'F'
     /// </summary>
-    class MotionGotoBeforeCharSearchBack : AbstractVimMotion, Interfaces.IVimMotionSearchCharInLine
+    class MotionGotoCharFindPrevious : AbstractVimMotion, Interfaces.IVimMotionSearchCharInLine
     {
         private char _toSearch = '\0';
 
-        public MotionGotoBeforeCharSearchBack(char toSearch, Interfaces.IVimHost host, int repeat)
+        public MotionGotoCharFindPrevious(char toSearch, Interfaces.IVimHost host, int repeat)
             : base(host, repeat)
         {
             _toSearch = toSearch;
@@ -42,8 +42,6 @@ namespace LibNVim.Motions
                 }
                 while (true);
             }
-
-            this.Host.CaretRight();
 
             return this.Host.CurrentPosition;
         }

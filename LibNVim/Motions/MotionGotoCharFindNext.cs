@@ -9,11 +9,11 @@ namespace LibNVim.Motions
     /// <summary>
     /// 'f'
     /// </summary>
-    class MotionGotoCharSearch : AbstractVimMotion, Interfaces.IVimMotionSearchCharInLine
+    class MotionGotoCharFindNext : AbstractVimMotion, Interfaces.IVimMotionSearchCharInLine
     {
         private char _toSearch = '\0';
 
-        public MotionGotoCharSearch(char toSearch, Interfaces.IVimHost host, int repeat)
+        public MotionGotoCharFindNext(char toSearch, Interfaces.IVimHost host, int repeat)
             : base(host, repeat)
         {
             _toSearch = toSearch;

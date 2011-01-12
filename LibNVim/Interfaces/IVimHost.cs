@@ -9,8 +9,6 @@ namespace LibNVim.Interfaces
     {
         IVimMode CurrentMode { get; set; }
 
-        IVimEditionRedoable LastEdition { get; set; }
-
         VimPoint CurrentPosition { get; }
         VimPoint CurrentLineEndPosition { get; }
 
@@ -34,6 +32,11 @@ namespace LibNVim.Interfaces
         /// <returns></returns>
         char GetCharAtCurrentPosition();
         char GetChar(VimPoint pos);
+        /// <summary>
+        /// if on white space, return that single char
+        /// </summary>
+        /// <returns></returns>
+        string GetWordAtCurrentPosition();
         string GetText(VimSpan span);
 
         bool FindPreviousChar(char toSearch, out VimPoint pos);
@@ -41,6 +44,10 @@ namespace LibNVim.Interfaces
 
         bool FindLeftBrace(VimPoint startPosition, out VimPoint pos);
         bool FindRightBrace(VimPoint startPosition, out VimPoint pos);
+
+        bool FindWord(string word);
+        bool FindNextWord(string word);
+        bool FindPreviousWord(string word);
 
         VimPoint GetLineEndPosition(int lineNumber);
 

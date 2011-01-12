@@ -6,13 +6,13 @@ using System.Text;
 namespace LibNVim.Motions
 {
     /// <summary>
-    /// 'F'
+    /// 't'
     /// </summary>
-    class MotionGotoCharSearchBack : AbstractVimMotion, Interfaces.IVimMotionSearchCharInLine
+    class MotionGotoBeforeCharFindNext : AbstractVimMotion, Interfaces.IVimMotionSearchCharInLine
     {
         private char _toSearch = '\0';
 
-        public MotionGotoCharSearchBack(char toSearch, Interfaces.IVimHost host, int repeat)
+        public MotionGotoBeforeCharFindNext(char toSearch, Interfaces.IVimHost host, int repeat)
             : base(host, repeat)
         {
             _toSearch = toSearch;
@@ -20,7 +20,7 @@ namespace LibNVim.Motions
 
         public override VimPoint Move()
         {
-            if (this.Host.IsCurrentPositionAtStartOfLine()) {
+            if (this.Host.IsCurrentPositionAtEndOfLine()) {
                 return this.Host.CurrentPosition;
             }
 
@@ -28,12 +28,12 @@ namespace LibNVim.Motions
 
             for (int i = 0; i < this.Repeat; i++) {
                 do {
-                    if (this.Host.IsCurrentPositionAtStartOfLine()) {
+                    if (this.Host.IsCurrentPositionAtEndOfLine()) {
                         this.Host.MoveCursor(bak);
                         return this.Host.CurrentPosition;
                     }
 
-                    this.Host.CaretLeft();
+                    this.Host.CaretRight();
                     char ch = this.Host.GetCharAtCurrentPosition();
 
                     if (ch == _toSearch) {
@@ -42,6 +42,8 @@ namespace LibNVim.Motions
                 }
                 while (true);
             }
+
+            this.Host.CaretLeft();
 
             return this.Host.CurrentPosition;
         }

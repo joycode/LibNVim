@@ -17,9 +17,9 @@ namespace LibNVim.Editions
 
         public override bool Apply()
         {
-            if (this.Host.LastEdition != null) {
+            if (VimGlobalInfo.LastEdition != null) {
                 for (int i = 0; i < this.Repeat; i++) {
-                    if (!this.Host.LastEdition.Redo()) {
+                    if (!VimGlobalInfo.LastEdition.Redo()) {
                         return false;
                     }
                 }

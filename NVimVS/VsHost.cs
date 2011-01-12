@@ -13,6 +13,7 @@ using System.Media;
 using Microsoft.VisualStudio.Text.Formatting;
 using System.Diagnostics;
 using Microsoft.VisualStudio.Language.Intellisense;
+using Microsoft.VisualStudio.Text.IncrementalSearch;
 
 namespace NVimVS
 {
@@ -21,6 +22,9 @@ namespace NVimVS
         private ITextView _textView = null;
         private _DTE _dte = null;
         private IEditorOperations _editorOperations = null;
+        private ITextStructureNavigatorSelectorService _textStructureNavigatorSelectorService = null;
+        private ITextSearchService _textSearchService = null;
+        private IIncrementalSearch _incrementalSearch = null;
         private VsVim.IBlockCaret _blockCaret = null;
         private ICompletionBroker _completionBroker = null;
 
@@ -61,12 +65,17 @@ namespace NVimVS
             get { return _textView.TextSnapshot.LineCount; }
         }
 
-        public VsHost(ITextView textView, _DTE dte, IEditorOperations editorOperations, VsVim.IBlockCaret blockCaret,
-            ICompletionBroker completionBroker)
+        public VsHost(ITextView textView, _DTE dte, IEditorOperations editorOperations, 
+            ITextStructureNavigatorSelectorService textStructureNavigatorSelectorService,
+            ITextSearchService textSearchService, IIncrementalSearch incrementalSearch,
+            VsVim.IBlockCaret blockCaret, ICompletionBroker completionBroker)
         {
             _textView = textView;
             _dte = dte;
             _editorOperations = editorOperations;
+            _textStructureNavigatorSelectorService = textStructureNavigatorSelectorService;
+            _textSearchService = textSearchService;
+            _incrementalSearch = incrementalSearch;
             _blockCaret = blockCaret;
             _completionBroker = completionBroker;
         }
@@ -77,7 +86,10 @@ namespace NVimVS
                 _dte.ExecuteCommand(command, args);
                 return true;
             }
-            catch (Exception) {
+            catch (Exception ex) {
+#if DEBUG
+                System.Windows.MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
+#endif
                 return false;
             }
         }
@@ -137,10 +149,27 @@ namespace NVimVS
 
             return _textView.Caret.Position.BufferPosition.GetChar();
         }
-
+       
         public override char GetChar(VimPoint pos)
         {
             return this.TranslatePoint(pos).GetChar();
+        }
+
+        public override string GetWordAtCurrentPosition()
+        {
+            char ch = this.GetCharAtCurrentPosition();
+            if (char.IsWhiteSpace(ch)) {
+                return ch.ToString();
+            }
+
+            SnapshotPoint bak = _textView.Caret.Position.BufferPosition;
+            _editorOperations.SelectCurrentWord();
+            string word = _editorOperations.SelectedText;
+
+            _editorOperations.SelectAndMoveCaret(new VirtualSnapshotPoint(bak), 
+                new VirtualSnapshotPoint(bak));
+
+            return word;
         }
 
         public override string GetText(VimSpan span)
@@ -338,6 +367,46 @@ namespace NVimVS
             }
 
             pos = this.TranslatePoint(current_pos);
+
+            return true;
+        }
+
+        public override bool FindWord(string word)
+        {
+            return this.SafeExecuteCommand("Edit.Find", word);
+        }
+
+        public override bool FindNextWord(string word)
+        {
+            _editorOperations.MoveToNextCharacter(false);
+
+            FindOptions opts = FindOptions.WholeWord;
+            SnapshotSpan? span = _textSearchService.FindNext(_textView.Caret.Position.BufferPosition.Position, true, 
+                (new FindData(word, _textView.TextSnapshot, opts, 
+                _textStructureNavigatorSelectorService.GetTextStructureNavigator(_textView.TextBuffer))));
+
+            if (!span.HasValue) {
+                _editorOperations.MoveToPreviousCharacter(false);
+                return false;
+            }
+
+            _textView.Caret.MoveTo(span.Value.Start);
+
+            return true;
+        }
+
+        public override bool FindPreviousWord(string word)
+        {
+            FindOptions opts = FindOptions.WholeWord | FindOptions.SearchReverse;
+            SnapshotSpan? span = _textSearchService.FindNext(_textView.Caret.Position.BufferPosition.Position, true,
+                (new FindData(word, _textView.TextSnapshot, opts,
+                _textStructureNavigatorSelectorService.GetTextStructureNavigator(_textView.TextBuffer))));
+
+            if (!span.HasValue) {
+                return false;
+            }
+
+            _textView.Caret.MoveTo(span.Value.Start);
 
             return true;
         }

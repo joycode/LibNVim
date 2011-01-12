@@ -13,6 +13,7 @@ using System.Diagnostics;
 using Microsoft.VisualStudio.Shell;
 using EnvDTE;
 using Microsoft.VisualStudio.Language.Intellisense;
+using Microsoft.VisualStudio.Text.IncrementalSearch;
 
 namespace NVimVS
 {
@@ -28,6 +29,12 @@ namespace NVimVS
         [Import]
         private IEditorOperationsFactoryService _editorOperationsFactoryService = null;
         [Import]
+        ITextSearchService _textSearchService = null;
+        [Import]
+        ITextStructureNavigatorSelectorService _textStructureNavigatorSelectorService = null;
+        [Import]
+        IIncrementalSearchFactoryService _incrementalSearchFactoryService = null;
+        [Import]
         private IEditorFormatMapService _editorFormatMapService = null;
         [Import]
         private IVsEditorAdaptersFactoryService _adaptersFactory = null;
@@ -35,6 +42,8 @@ namespace NVimVS
         private SVsServiceProvider _vsServiceProvider = null;
         [Import]
         private ICompletionBroker _completionBroker = null;
+
+        
         //[Import]
         //private ISignatureHelpBroker _signatureBroker = null;
         //[Import]
@@ -58,11 +67,14 @@ namespace NVimVS
             }
 
             IEditorOperations editor_operations = _editorOperationsFactoryService.GetEditorOperations(wpfTextView);
+            IIncrementalSearch incremental_search = _incrementalSearchFactoryService.GetIncrementalSearch(wpfTextView);
+
             VsVim.IBlockCaret block_caret = new VsVim.BlockCaretFactoryService(_editorFormatMapService).CreateBlockCaret(wpfTextView);
 
             _DTE dte = (_DTE)_vsServiceProvider.GetService(typeof(_DTE));
 
-            VsHost host = new VsHost(wpfTextView, dte, editor_operations, block_caret, _completionBroker);
+            VsHost host = new VsHost(wpfTextView, dte, editor_operations, _textStructureNavigatorSelectorService,
+                _textSearchService, incremental_search, block_caret, _completionBroker);
             VsHostManager.Singleton.HostMap.Add(wpfTextView, host);
 
             return host;

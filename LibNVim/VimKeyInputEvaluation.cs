@@ -77,7 +77,7 @@ namespace LibNVim
         /// all simple motions plan to support
         /// </summary>
         private static char[] Simple_Motion_Chars = { 'h', 'H', 'j', 'k', 'l', 'L', '0', '^', '$', 'G',
-                                                        'w', 'W', 'e', 'E', 'b', 'B', '%', '*' };
+                                                        'w', 'W', 'e', 'E', 'b', 'B', '%', '*', '#', 'n', 'N' };
         /// <summary>
         /// all simple editions, and 'u' undo/'U' redo, 'p'/'P' for paste
         /// </summary>
@@ -167,7 +167,13 @@ namespace LibNVim
                 case '%':
                     return new Motions.MotionGoToMatch(_host, repeat.Value);
                 case '*':
-                    break;
+                    return new Motions.MotionGotoWordFindStar(_host, repeat.Value);
+                case '#':
+                    return new Motions.MotionGotoWordFindSharp(_host, repeat.Value);
+                case 'n':
+                    return new Motions.MotionGotoWordFindNext(_host, repeat.Value);
+                case 'N':
+                    return new Motions.MotionGotoWordFindPrevious(_host, repeat.Value);
                 default:
                     Debug.Assert(false);
                     break;
@@ -277,13 +283,13 @@ namespace LibNVim
         {
             switch (searchCommand) {
                 case 'f':
-                    return new Motions.MotionGotoCharSearch(toSearch, _host, repeat);
+                    return new Motions.MotionGotoCharFindNext(toSearch, _host, repeat);
                 case 'F':
-                    return new Motions.MotionGotoCharSearchBack(toSearch, _host, repeat);
+                    return new Motions.MotionGotoCharFindPrevious(toSearch, _host, repeat);
                 case 't':
-                    return new Motions.MotionGotoBeforeCharSearch(toSearch, _host, repeat);
+                    return new Motions.MotionGotoBeforeCharFindNext(toSearch, _host, repeat);
                 case 'T':
-                    return new Motions.MotionGotoBeforeCharSearchBack(toSearch, _host, repeat);
+                    return new Motions.MotionGotoBeforeCharFindPrevious(toSearch, _host, repeat);
                 default:
                     Debug.Assert(false);
                     break;

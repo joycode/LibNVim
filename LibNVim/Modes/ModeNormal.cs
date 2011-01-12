@@ -25,7 +25,7 @@ namespace LibNVim.Modes
             bool result = edition.Apply();
             if (result) {
                 if (edition is IVimEditionRedoable) {
-                    this.Host.LastEdition = edition as IVimEditionRedoable;
+                    VimGlobalInfo.LastEdition = edition as IVimEditionRedoable;
                 }
             }
 

@@ -13,8 +13,6 @@ namespace LibNVim
     {
         public IVimMode CurrentMode { get; set; }
 
-        public IVimEditionRedoable LastEdition { get; set; }
-
         public abstract VimPoint CurrentPosition { get; }
         public abstract VimPoint CurrentLineEndPosition { get; }
 
@@ -47,6 +45,7 @@ namespace LibNVim
 
         public abstract char GetCharAtCurrentPosition();
         public abstract char GetChar(VimPoint pos);
+        public abstract string GetWordAtCurrentPosition();
         public abstract string GetText(VimSpan span);
 
         public abstract bool FindPreviousChar(char toSearch, out VimPoint pos);
@@ -54,6 +53,10 @@ namespace LibNVim
 
         public abstract bool FindLeftBrace(VimPoint startPosition, out VimPoint pos);
         public abstract bool FindRightBrace(VimPoint startPosition, out VimPoint pos);
+
+        public abstract bool  FindWord(string word);
+        public abstract bool FindNextWord(string word);
+        public abstract bool FindPreviousWord(string word);
 
         public abstract VimPoint GetLineEndPosition(int lineNumber);
 
