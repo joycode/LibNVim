@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 
 namespace LibNVim.Motions
@@ -18,7 +18,7 @@ namespace LibNVim.Motions
         public override VimPoint Move()
         {
             string word = this.Host.GetWordAtCurrentPosition();
-            if (string.IsNullOrWhiteSpace(word)) {
+            if (Util.StringHelper.IsNullOrWhiteSpace(word)) {
                 this.Host.UpdateStatus("Error: No string unser cursor");
                 return this.Host.CurrentPosition;
             }

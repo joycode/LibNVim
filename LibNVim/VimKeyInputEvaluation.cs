@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 using LibNVim.Interfaces;
 using System.Diagnostics;
@@ -76,16 +76,16 @@ namespace LibNVim
         /// <summary>
         /// all simple motions plan to support
         /// </summary>
-        private static char[] Simple_Motion_Chars = { 'h', 'H', 'j', 'k', 'l', 'L', '0', '^', '$', 'G',
+        private static List<char> Simple_Motion_Chars = new List<char>() { 'h', 'H', 'j', 'k', 'l', 'L', '0', '^', '$', 'G',
                                                         'w', 'W', 'e', 'E', 'b', 'B', '%', '*', '#', 'n', 'N' };
         /// <summary>
         /// all simple editions, and 'u' undo/'U' redo, 'p'/'P' for paste
         /// </summary>
-        private static char[] Simple_Edition_Chars = { '.', 'u', 'U', 'x', 'X', 'i', 'I', 'a', 'A', 's', 'S', 'o', 
+        private static List<char> Simple_Edition_Chars = new List<char>() { '.', 'u', 'U', 'x', 'X', 'i', 'I', 'a', 'A', 's', 'S', 'o', 
                                                          'O', 'p', 'P', 'C', 'D', 'J' };
         // all range editions
-        private static char[] Range_Edition_Chars = { 'c', 'd', '=' };
-        private static char[] Search_Char_In_line_Chars = { 'f', 'F', 't', 'T' };
+        private static List<char> Range_Edition_Chars = new List<char>() { 'c', 'd', '=' };
+        private static List<char> Search_Char_In_line_Chars = new List<char>() { 'f', 'F', 't', 'T' };
         private static char Double_Quote = '"';
         private static char Back_Slash = '/';
         // duplicated in Range_Edition_Chars
@@ -323,8 +323,11 @@ namespace LibNVim
                     if (_actionState == ActionState.SearchWord) {
                         // in search word state, only accepts Key.Enter, Key.Backspace as special key input, else just ignores
                         if (string.Compare(keyInput.Value, VimKeyInput.Enter) == 0) {
-                            if (string.IsNullOrWhiteSpace(_wordToSearch)) {
-                                return KeyEvalState.Error;
+                            if (Util.StringHelper.IsNullOrWhiteSpace(_wordToSearch)) {
+                                // dirty hacking! if return KeyEvalState.Error, 
+                                // the Key.Enter will not be handled, but return to text editor
+                                // TODO maybe need a better way to tell whether handling key input or not?
+                                return KeyEvalState.Escape;
                             }
                             else {
                                 action = new Motions.MotionGotoWordSearch(_wordToSearch, _host);

@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LibNVim</RootNamespace>
     <AssemblyName>LibNVim</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,12 +33,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractVimHost.cs" />
@@ -102,6 +97,7 @@
     <Compile Include="Motions\MotionScrollLineCenter.cs" />
     <Compile Include="Motions\MotionGotoCharFindPrevious.cs" />
     <Compile Include="Motions\MotionGotoCharFindNext.cs" />
+    <Compile Include="Util\StringHelper.cs" />
     <Compile Include="VimGlobalInfo.cs" />
     <Compile Include="VimKeyInputEvaluation.cs" />
     <Compile Include="Modes\ModeInsert.cs" />

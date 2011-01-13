@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 using System.Diagnostics;
 
@@ -13,7 +13,7 @@ namespace LibNVim.Motions
         public MotionGotoWordSearch(string wordToSearch, Interfaces.IVimHost host)
             : base(host, 1)
         {
-            Debug.Assert(!string.IsNullOrWhiteSpace(wordToSearch));
+            Debug.Assert(!Util.StringHelper.IsNullOrWhiteSpace(wordToSearch));
             _wordToSearch = wordToSearch;
         }
 
