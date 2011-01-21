@@ -34,21 +34,7 @@ namespace LibNVim.Modes
 
         public virtual bool CanProcess(VimKeyInput keyInput)
         {
-            if (keyInput.Value.Length == 1) {
-                return true;
-            }
-            else {
-                return true;
-                //// special key input
-                //if (keyInput.Value.Equals(VimKeyInput.Escape) ||
-                //    keyInput.Value.Equals(VimKeyInput.Backspace) ||
-                //    keyInput.Value.Equals(VimKeyInput.Enter)) {
-                //    return true;
-                //}
-                //else {
-                //    return false;
-                //}
-            }
+            return true;
         }
 
         private bool IsSpecialKeyInput(string keyInput)

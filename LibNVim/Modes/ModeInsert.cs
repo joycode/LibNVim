@@ -44,9 +44,6 @@ namespace LibNVim.Modes
 
         public virtual bool CanProcess(VimKeyInput keyInput)
         {
-            if (keyInput.Value.Length == 1) {
-                return false;
-            }
             return true;
         }
 
@@ -56,11 +53,6 @@ namespace LibNVim.Modes
         /// <param name="args"></param>
         public virtual void KeyDown(VimKeyEventArgs args)
         {
-            if (this.Host.SelectedText.Length > 0) {
-                // hmm, when text is in selection, we have a problem to consider
-                _insertArea = new VimSpan(this.Host.CurrentPosition, this.Host.CurrentPosition);
-            }
-
             // important for dealing some unexpected scene
             bool is_unsupported_key_last_input = false;
 
@@ -109,11 +101,10 @@ namespace LibNVim.Modes
             else if (args.KeyInput.Value == VimKeyInput.Escape) {
                 if (!is_unsupported_key_last_input) {
                     // Escape after normal key/char input, do some extra checks
-                    if (this.Host.CurrentPosition.CompareTo(_insertArea.End) > 0) {
+                    if (this.Host.CurrentPosition.CompareTo(_insertArea.End) != 0) {
                         // you can't expect to get precise input text here, because everything is under control, but something wrong happened
-                        // so we can only do some poor guess: 
-                        // insert area's Start wouldn't change, only need to extend area's End to current cursor's position
-                        _insertArea = _insertArea.ExtendEndTo(this.Host.CurrentPosition);
+                        // so we reset the insert area
+                        _insertArea = new VimSpan(this.Host.CurrentPosition, this.Host.CurrentPosition);
                     }
                 }
 
