@@ -14,7 +14,7 @@ namespace LibNVim.Editions
 
         public override bool Apply()
         {
-            if (this.Host.CurrentPosition.Y == 0) {
+            if (this.Host.IsCurrentPositionAtStartOfLine()) {
                 return true;
             }
 

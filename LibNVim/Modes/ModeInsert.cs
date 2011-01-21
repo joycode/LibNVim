@@ -50,22 +50,17 @@ namespace LibNVim.Modes
             return true;
         }
 
-        private void OnKeyInputImmediatelyAfterLastNoneCharKeyInput()
-        {
-            if (this.Host.CurrentPosition.CompareTo(_insertArea.Start) < 0) {
-                return;
-            }
-
-            // extends edition region regarding to last location action
-            _insertArea = _insertArea.ExtendEndTo(this.Host.CurrentPosition);
-        }
-
         /// <summary>
         /// mayby too dedicated to VS's editor
         /// </summary>
         /// <param name="args"></param>
         public virtual void KeyDown(VimKeyEventArgs args)
         {
+            if (this.Host.SelectedText.Length > 0) {
+                // hmm, when text is in selection, we have a problem to consider
+                _insertArea = new VimSpan(this.Host.CurrentPosition, this.Host.CurrentPosition);
+            }
+
             // important for dealing some unexpected scene
             bool is_unsupported_key_last_input = false;
 

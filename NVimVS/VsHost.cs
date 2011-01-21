@@ -55,6 +55,11 @@ namespace NVimVS
             }
         }
 
+        public override string SelectedText
+        {
+            get { return _editorOperations.SelectedText; }
+        }
+
         public override string ClipboardText
         {
             get
@@ -198,46 +203,6 @@ namespace NVimVS
             return new VimPoint(line.LineNumber, pos.Position - line.Start.Position);
         }
 
-        public override bool FindPreviousChar(char toSearch, out VimPoint pos)
-        {
-            pos = null;
-
-            if (this.IsCurrentPositionAtStartOfDocument()) {
-                return false;
-            }
-
-            bool found = false;
-
-            SnapshotPoint current_pos = _textView.Caret.Position.BufferPosition;
-            ITextSnapshotLine current_line = current_pos.GetContainingLine();
-            do {
-                if (current_pos.Position != current_line.Start.Position) {
-                    current_pos = new SnapshotPoint(current_pos.Snapshot, current_pos.Position - 1);
-                }
-                else {
-                    if (current_line.LineNumber == 0) {
-                        break;
-                    }
-                    current_line = current_line.Snapshot.GetLineFromLineNumber(current_line.LineNumber - 1);
-                    current_pos = current_line.End;
-                }
-
-                if (current_pos.GetChar() == toSearch) {
-                    found = true;
-                    break;
-                }
-            }
-            while (current_pos.Position != 0);
-
-            if (!found) {
-                return false;
-            }
-
-            pos = this.TranslatePoint(current_pos);
-
-            return true;
-        }
-
         private bool IsPositionAtEndOfDocument(SnapshotPoint pos)
         {
             ITextSnapshotLine line = pos.GetContainingLine();
@@ -246,46 +211,6 @@ namespace NVimVS
             }
 
             return (pos.Position == line.End);
-        }
-
-        public override bool FindNextChar(char toSearch, out VimPoint pos)
-        {
-            pos = null;
-
-            if (this.IsCurrentPositionAtEndOfDocument()) {
-                return false;
-            }
-
-            bool found = false;
-
-            SnapshotPoint current_pos = _textView.Caret.Position.BufferPosition;
-            ITextSnapshotLine current_line = current_pos.GetContainingLine();
-            do {
-                if (current_pos.Position != current_line.End.Position) {
-                    current_pos = new SnapshotPoint(current_pos.Snapshot, current_pos.Position + 1);
-                }
-                else {
-                    if (current_line.LineNumber == (current_line.Snapshot.LineCount - 1)) {
-                        break;
-                    }
-                    current_line = current_line.Snapshot.GetLineFromLineNumber(current_line.LineNumber + 1);
-                    current_pos = current_line.Start;
-                }
-
-                if (current_pos.GetChar() == toSearch) {
-                    found = true;
-                    break;
-                }
-            }
-            while (!this.IsPositionAtEndOfDocument(current_pos));
-
-            if (!found) {
-                return false;
-            }
-
-            pos = this.TranslatePoint(current_pos);
-
-            return true;
         }
 
         public override bool FindLeftBrace(VimPoint startPosition, out VimPoint pos)
@@ -360,6 +285,11 @@ namespace NVimVS
                     }
                     current_line = current_line.Snapshot.GetLineFromLineNumber(current_line.LineNumber + 1);
                     current_pos = current_line.Start;
+
+                    // in case start of the new line is also end of document
+                    if (current_pos.Position == current_line.End.Position) {
+                        break;
+                    }
                 }
 
                 char ch = current_pos.GetChar();
@@ -559,7 +489,7 @@ namespace NVimVS
             _textView.Caret.MoveTo(this.TranslatePoint(pos));
         }
 
-        public override void Select(VimSpan span)
+        private void Select(VimSpan span)
         {
             SnapshotSpan editor_span = this.TranslateSpan(span);
 

@@ -16,6 +16,8 @@ namespace LibNVim
         public abstract VimPoint CurrentPosition { get; }
         public abstract VimPoint CurrentLineEndPosition { get; }
 
+        public abstract string SelectedText { get; }
+
         public abstract string ClipboardText { get; set; }
 
         public abstract string LineBreak { get; }
@@ -29,6 +31,10 @@ namespace LibNVim
 
         public virtual bool CanProcess(VimKeyInput keyInput)
         {
+            if (this.SelectedText.Length > 0) {
+                return false;
+            }
+
             return this.CurrentMode.CanProcess(keyInput);
         }
 
@@ -50,9 +56,6 @@ namespace LibNVim
         public abstract string GetWordAtCurrentPosition();
         public abstract string GetText(VimSpan span);
 
-        public abstract bool FindPreviousChar(char toSearch, out VimPoint pos);
-        public abstract bool FindNextChar(char toSearch, out VimPoint pos);
-
         public abstract bool FindLeftBrace(VimPoint startPosition, out VimPoint pos);
         public abstract bool FindRightBrace(VimPoint startPosition, out VimPoint pos);
 
@@ -72,7 +75,6 @@ namespace LibNVim
         public abstract bool IsCurrentPositionAtEndOfLine();
 
         public abstract void MoveCursor(VimPoint pos);
-        public abstract void Select(VimSpan span);
 
         public abstract void CaretLeft();
         public abstract void CaretRight();

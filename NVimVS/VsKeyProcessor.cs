@@ -33,7 +33,9 @@ namespace NVimVS
                     // components edit without having to come through us
                     var keyboard = args.Device as KeyboardDevice;
                     if (keyboard != null) {
-                        _host.KeyDown(vim_args);
+                        if (_host.CanProcess(vim_args.KeyInput)) {
+                            _host.KeyDown(vim_args);
+                        }
                     }
                 }
 

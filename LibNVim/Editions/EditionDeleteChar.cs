@@ -15,6 +15,10 @@ namespace LibNVim.Editions
 
         public override bool Apply()
         {
+            if (this.Host.IsCurrentPositionAtEndOfLine()) {
+                return true;
+            }
+
             VimPoint from = this.Host.CurrentPosition;
             VimPoint to = new VimPoint(from.X,
                 Math.Min(from.Y + this.Repeat - 1, this.Host.CurrentLineEndPosition.Y - 1));

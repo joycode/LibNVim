@@ -9,20 +9,51 @@ namespace LibNVim.Interfaces
     {
         IVimMode CurrentMode { get; set; }
 
+        /// <summary>
+        /// text cursor's position
+        /// </summary>
         VimPoint CurrentPosition { get; }
+        /// <summary>
+        /// line end position of current cursor
+        /// </summary>
         VimPoint CurrentLineEndPosition { get; }
+        /// <summary>
+        /// text's selected text
+        /// </summary>
+        string SelectedText { get; }
 
+        /// <summary>
+        /// interoperate with system's clipboard
+        /// </summary>
         string ClipboardText { get; set; }
 
         string LineBreak { get; }
-
+        /// <summary>
+        /// document's line count
+        /// </summary>
         int TextLineCount { get; }
 
+        /// <summary>
+        /// tells editor whether "keyInput" can be processed by IVimHost
+        /// </summary>
+        /// <param name="keyInput"></param>
+        /// <returns></returns>
         bool CanProcess(VimKeyInput keyInput);
+        /// <summary>
+        /// to process editor's keydown
+        /// </summary>
+        /// <param name="args"></param>
         void KeyDown(VimKeyEventArgs args);
 
         void Beep();
+        /// <summary>
+        /// update editor's status bar
+        /// </summary>
+        /// <param name="text"></param>
         void UpdateStatus(string text);
+        /// <summary>
+        /// dismiss popup windows in editor, such compeletion popup windows
+        /// </summary>
         void DismissDisplayWindows();
 
         void Undo();
@@ -33,23 +64,59 @@ namespace LibNVim.Interfaces
         /// </summary>
         /// <returns></returns>
         char GetCharAtCurrentPosition();
+        /// <summary>
+        /// get characher at specified position
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         char GetChar(VimPoint pos);
         /// <summary>
         /// if on white space, return that single char
         /// </summary>
         /// <returns></returns>
         string GetWordAtCurrentPosition();
+        /// <summary>
+        /// get text between span
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
         string GetText(VimSpan span);
 
-        bool FindPreviousChar(char toSearch, out VimPoint pos);
-        bool FindNextChar(char toSearch, out VimPoint pos);
-
+        /// <summary>
+        /// "[{"
+        /// </summary>
+        /// <param name="startPosition"></param>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         bool FindLeftBrace(VimPoint startPosition, out VimPoint pos);
+        /// <summary>
+        /// "]}"
+        /// </summary>
+        /// <param name="startPosition"></param>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         bool FindRightBrace(VimPoint startPosition, out VimPoint pos);
 
+        /// <summary>
+        /// search word
+        /// </summary>
+        /// <param name="word"></param>
+        /// <param name="wholeWord"></param>
+        /// <returns></returns>
         bool FindNextWord(string word, bool wholeWord);
+        /// <summary>
+        /// search word backward
+        /// </summary>
+        /// <param name="word"></param>
+        /// <param name="wholeWord"></param>
+        /// <returns></returns>
         bool FindPreviousWord(string word, bool wholeWord);
 
+        /// <summary>
+        /// get position of the end of specifiled line
+        /// </summary>
+        /// <param name="lineNumber"></param>
+        /// <returns></returns>
         VimPoint GetLineEndPosition(int lineNumber);
 
         bool IsCurrentPositionAtStartOfDocument();
@@ -61,17 +128,16 @@ namespace LibNVim.Interfaces
         bool IsCurrentPositionAtStartOfLine();
         bool IsCurrentPositionAtStartOfLineText();
         bool IsCurrentPositionAtEndOfLine();
-        
-        //bool IsCurrentPositionAtEndOfWord();
 
-        //bool IsPositionAtStartOfLine(VimPoint pos);
-        //bool IsPositionAtEndOfLine(VimPoint pos);
-        //bool IsPositionAtFirstLine(VimPoint pos);
-        //bool IsPositionAtLastLine(VimPoint pos);
-
+        /// <summary>
+        /// move editor's cursor to specified position
+        /// </summary>
+        /// <param name="pos"></param>
         void MoveCursor(VimPoint pos);
-        void Select(VimSpan span);
 
+        /// <summary>
+        /// move cursor left
+        /// </summary>
         void CaretLeft();
         void CaretRight();
         void CaretUp();
