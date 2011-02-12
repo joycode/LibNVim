@@ -29,6 +29,8 @@ namespace NVimVS
         [Import]
         private IEditorOperationsFactoryService _editorOperationsFactoryService = null;
         [Import]
+        private ITextUndoHistoryRegistry _textUndoHistoryRegistry = null;
+        [Import]
         ITextSearchService _textSearchService = null;
         [Import]
         ITextStructureNavigatorSelectorService _textStructureNavigatorSelectorService = null;
@@ -67,14 +69,16 @@ namespace NVimVS
             }
 
             IEditorOperations editor_operations = _editorOperationsFactoryService.GetEditorOperations(wpfTextView);
+            ITextUndoHistory text_history = _textUndoHistoryRegistry.RegisterHistory(wpfTextView.TextBuffer);
             IIncrementalSearch incremental_search = _incrementalSearchFactoryService.GetIncrementalSearch(wpfTextView);
 
             VsVim.IBlockCaret block_caret = new VsVim.BlockCaretFactoryService(_editorFormatMapService).CreateBlockCaret(wpfTextView);
 
             _DTE dte = (_DTE)_vsServiceProvider.GetService(typeof(_DTE));
 
-            VsHost host = new VsHost(wpfTextView, dte, editor_operations, _textStructureNavigatorSelectorService,
-                _textSearchService, incremental_search, block_caret, _completionBroker);
+            VsHost host = new VsHost(wpfTextView, dte, editor_operations, text_history,
+                _textStructureNavigatorSelectorService, _textSearchService, incremental_search, 
+                block_caret, _completionBroker);
             VsHostManager.Singleton.HostMap.Add(wpfTextView, host);
 
             return host;

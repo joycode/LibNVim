@@ -22,6 +22,7 @@ namespace NVimVS
         private ITextView _textView = null;
         private _DTE _dte = null;
         private IEditorOperations _editorOperations = null;
+        private ITextUndoHistory _textHistory = null;
         private ITextStructureNavigatorSelectorService _textStructureNavigatorSelectorService = null;
         private ITextSearchService _textSearchService = null;
         private IIncrementalSearch _incrementalSearch = null;
@@ -85,7 +86,7 @@ namespace NVimVS
             get { return _textView.TextSnapshot.LineCount; }
         }
 
-        public VsHost(ITextView textView, _DTE dte, IEditorOperations editorOperations, 
+        public VsHost(ITextView textView, _DTE dte, IEditorOperations editorOperations, ITextUndoHistory textHistory,
             ITextStructureNavigatorSelectorService textStructureNavigatorSelectorService,
             ITextSearchService textSearchService, IIncrementalSearch incrementalSearch,
             VsVim.IBlockCaret blockCaret, ICompletionBroker completionBroker)
@@ -93,6 +94,7 @@ namespace NVimVS
             _textView = textView;
             _dte = dte;
             _editorOperations = editorOperations;
+            _textHistory = textHistory;
             _textStructureNavigatorSelectorService = textStructureNavigatorSelectorService;
             _textSearchService = textSearchService;
             _incrementalSearch = incrementalSearch;
@@ -143,8 +145,11 @@ namespace NVimVS
 
         public override void Undo()
         {
-            this.SafeExecuteCommand("Edit.Undo");
-            _editorOperations.ResetSelection();
+            if (!_textHistory.CanUndo) {
+                return;
+            }
+
+            _textHistory.Undo(1);
 
             if (this.IsCurrentPositionAtEndOfLine()) {
                 this.CaretLeft();
@@ -153,8 +158,11 @@ namespace NVimVS
 
         public override void Redo()
         {
-            this.SafeExecuteCommand("Edit.Redo");
-            _editorOperations.ResetSelection();
+            if (!_textHistory.CanRedo) {
+                return;
+            }
+
+            _textHistory.Redo(1);
 
             if (this.IsCurrentPositionAtEndOfLine()) {
                 this.CaretLeft();
