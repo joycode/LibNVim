@@ -276,18 +276,18 @@ namespace NVimVS
             int depth = 1;
             ITextSnapshotLine current_line = current_pos.GetContainingLine();
             do {
-                if (current_pos.Position != current_line.End.Position) {
+                if (!this.IsPositionAtEndOfLine(current_pos)) {
                     current_pos = new SnapshotPoint(current_pos.Snapshot, current_pos.Position + 1);
                 }
                 else {
-                    if (current_line.LineNumber == (current_line.Snapshot.LineCount - 1)) {
+                    if (this.IsPositionAtEndOfDocument(current_pos)) {
                         break;
                     }
                     current_line = current_line.Snapshot.GetLineFromLineNumber(current_line.LineNumber + 1);
                     current_pos = current_line.Start;
 
-                    // in case start of the new line is also end of document
-                    if (current_pos.Position == current_line.End.Position) {
+                    if (this.IsPositionAtEndOfDocument(current_pos)) {
+                        // in case start of the new line is also end of document
                         break;
                     }
                 }
@@ -436,6 +436,13 @@ namespace NVimVS
             int dst_pos = line.Start.Position + pos.Y;
 
             return new SnapshotPoint(_textView.TextSnapshot, dst_pos);
+        }
+
+        private bool IsPositionAtEndOfLine(SnapshotPoint pos)
+        {
+            ITextSnapshotLine line = pos.GetContainingLine();
+
+            return (pos.Position == line.End.Position);
         }
 
         private bool IsPositionAtEndOfLine(VimPoint pos)
