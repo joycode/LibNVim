@@ -343,6 +343,7 @@ namespace NVimVS
             }
 
             _textView.Caret.MoveTo(span.Value.Start);
+            _editorOperations.ScrollLineCenter();
 
             return true;
         }
@@ -363,6 +364,7 @@ namespace NVimVS
             }
 
             _textView.Caret.MoveTo(span.Value.Start);
+            _editorOperations.ScrollLineCenter();
 
             return true;
         }
