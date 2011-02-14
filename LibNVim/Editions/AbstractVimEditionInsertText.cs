@@ -14,20 +14,20 @@ namespace LibNVim.Editions
         {
         }
 
-        protected abstract void OnBeforeInsert();
+        protected abstract void OnBeforeInsert(Interfaces.IVimHost host);
 
-        public override bool Apply()
+        public override bool Apply(Interfaces.IVimHost host)
         {
-            this.OnBeforeInsert();
-            Modes.ModeInsert mode = new Modes.ModeInsert(this.Host, this.Host.CurrentMode, this);
-            this.Host.CurrentMode = mode;
+            this.OnBeforeInsert(host);
+            Modes.ModeInsert mode = new Modes.ModeInsert(host, host.CurrentMode, this);
+            host.CurrentMode = mode;
             return true;
         }
 
-        public override bool Redo()
+        public override bool Redo(Interfaces.IVimHost host)
         {
-            this.OnBeforeInsert();
-            this.Host.InsertTextAtCurrentPosition(this.Text);
+            this.OnBeforeInsert(host);
+            host.InsertTextAtCurrentPosition(this.Text);
             return true;
         }
     }

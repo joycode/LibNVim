@@ -16,12 +16,12 @@ namespace LibNVim.Editions
             this.Motion = motion;
         }
 
-        public override bool Apply()
+        public override bool Apply(Interfaces.IVimHost host)
         {
-            VimPoint from = this.Host.CurrentPosition;
+            VimPoint from = host.CurrentPosition;
             VimPoint to = null;
             for (int i = 0; i < this.Repeat; i++) {
-                to = this.Motion.Move();
+                to = this.Motion.Move(host);
             }
 
             VimSpan span = null;
@@ -33,10 +33,10 @@ namespace LibNVim.Editions
 
                 if (this.Motion is Interfaces.IVimMotionNextWord) {
                     // "dw" on the last word of the line deletes to the end of the line
-                    if (this.Host.IsCurrentPositionAtStartOfLineText()) {
-                        this.Host.CaretUp();
-                        this.Host.MoveToEndOfLine();
-                        span = new VimSpan(from, this.Host.CurrentPosition);
+                    if (host.IsCurrentPositionAtStartOfLineText()) {
+                        host.CaretUp();
+                        host.MoveToEndOfLine();
+                        span = new VimSpan(from, host.CurrentPosition);
                     }
                 }
                 else if (this.Motion is Interfaces.IVimMotionEndOfWord) {
@@ -61,16 +61,16 @@ namespace LibNVim.Editions
             }
 
             if (this.Motion is IVimMotionBetweenLines) {
-                VimRegister.YankLineToDefaultRegister(this.Host, span);
-                this.Host.DeleteLineRange(span);
+                VimRegister.YankLineToDefaultRegister(host, span);
+                host.DeleteLineRange(span);
             }
             else {
-                VimRegister.YankRangeToDefaultRegister(this.Host, span);
-                this.Host.DeleteRange(span);
+                VimRegister.YankRangeToDefaultRegister(host, span);
+                host.DeleteRange(span);
             }
 
-            if (this.Host.IsCurrentPositionAtEndOfLine()) {
-                this.Host.CaretLeft();
+            if (host.IsCurrentPositionAtEndOfLine()) {
+                host.CaretLeft();
             }
 
             return true;

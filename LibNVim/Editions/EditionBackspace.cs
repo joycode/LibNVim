@@ -12,18 +12,18 @@ namespace LibNVim.Editions
         {
         }
 
-        public override bool Apply()
+        public override bool Apply(Interfaces.IVimHost host)
         {
-            if (this.Host.IsCurrentPositionAtStartOfLine()) {
+            if (host.IsCurrentPositionAtStartOfLine()) {
                 return true;
             }
 
-            VimPoint from = this.Host.CurrentPosition;
+            VimPoint from = host.CurrentPosition;
             VimPoint to = new VimPoint(from.X, Math.Max(from.Y - this.Repeat, 0));
 
             VimSpan span = new VimSpan(to, from);
-            VimRegister.YankRangeToDefaultRegister(this.Host, span);
-            this.Host.DeleteRange(span);
+            VimRegister.YankRangeToDefaultRegister(host, span);
+            host.DeleteRange(span);
 
             return true;
         }

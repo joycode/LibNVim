@@ -15,10 +15,10 @@ namespace LibNVim.Editions
             this.Motion = motion;
         }
 
-        public override bool Apply()
+        public override bool Apply(Interfaces.IVimHost host)
         {
-            VimPoint from = this.Host.CurrentPosition;
-            VimPoint to = this.Motion.Move();
+            VimPoint from = host.CurrentPosition;
+            VimPoint to = this.Motion.Move(host);
 
             VimSpan span = null;
             if (from.CompareTo(to) <= 0) {
@@ -28,7 +28,7 @@ namespace LibNVim.Editions
                 span = new VimSpan(to, from);
             }
 
-            this.Host.FormatLineRange(span);
+            host.FormatLineRange(span);
 
             return true;
         }

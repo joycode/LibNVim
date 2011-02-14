@@ -15,22 +15,21 @@ namespace LibNVim.Motions
         {
         }
 
-        public override VimPoint Move()
+        public override VimPoint Move(Interfaces.IVimHost host)
         {
-            string word = this.Host.GetWordAtCurrentPosition();
+            string word = host.GetWordAtCurrentPosition();
             if (Util.StringHelper.IsNullOrWhiteSpace(word)) {
-                this.Host.UpdateStatus("Error: No string unser cursor");
-                return this.Host.CurrentPosition;
+                host.UpdateStatus("Error: No string under cursor");
+                return host.CurrentPosition;
             }
 
-            VimGlobalInfo.IncrementalSearchWord = word;
-            VimGlobalInfo.IsWholeWordSearch = true;
+            VimGlobalInfo.FindWordRecord = new VimFindWordRecord(word, VimFindWordRecord.FindOptions.WholeWord);
 
             for (int i = 0; i < this.Repeat; i++) {
-                this.Host.FindPreviousWord(word, VimGlobalInfo.IsWholeWordSearch);
+                host.FindPreviousWord(VimGlobalInfo.FindWordRecord);
             }
 
-            return this.Host.CurrentPosition;
+            return host.CurrentPosition;
         }
     }
 }

@@ -15,16 +15,16 @@ namespace LibNVim.Motions
         {
         }
 
-        public override VimPoint Move()
+        public override VimPoint Move(Interfaces.IVimHost host)
         {
             int dst_line = this.Repeat - 1;
-            if (dst_line != this.Host.CurrentPosition.X) {
-                this.Host.GotoLine(dst_line);
+            if (dst_line != host.CurrentPosition.X) {
+                host.GotoLine(dst_line);
             }
 
-            this.Host.ScrollLineCenter();
+            host.ScrollLineCenter();
 
-            return this.Host.CurrentPosition;
+            return host.CurrentPosition;
         }
     }
 }

@@ -12,15 +12,15 @@ namespace LibNVim.Editions
         {
         }
 
-        protected override void OnBeforeInsert()
+        protected override void OnBeforeInsert(Interfaces.IVimHost host)
         {
-            VimPoint from = this.Host.CurrentPosition;
+            VimPoint from = host.CurrentPosition;
             VimPoint to = new VimPoint(from.X,
-                Math.Min(from.Y + this.Repeat - 1, this.Host.CurrentLineEndPosition.Y - 1));
+                Math.Min(from.Y + this.Repeat - 1, host.CurrentLineEndPosition.Y - 1));
 
             VimSpan span = new VimSpan(from, to);
-            VimRegister.YankRangeToDefaultRegister(this.Host, span);
-            this.Host.DeleteRange(span);
+            VimRegister.YankRangeToDefaultRegister(host, span);
+            host.DeleteRange(span);
         }
     }
 }

@@ -17,13 +17,13 @@ namespace LibNVim.Motions
             _wordToSearch = wordToSearch;
         }
 
-        public override VimPoint Move()
+        public override VimPoint Move(Interfaces.IVimHost host)
         {
-            VimGlobalInfo.IncrementalSearchWord = _wordToSearch;
-            VimGlobalInfo.IsWholeWordSearch = false;
+            VimGlobalInfo.FindWordRecord = new VimFindWordRecord(_wordToSearch, VimFindWordRecord.FindOptions.UserRegex);
+  
+            host.FindNextWord(VimGlobalInfo.FindWordRecord);
 
-            this.Host.FindNextWord(_wordToSearch, VimGlobalInfo.IsWholeWordSearch);
-            return this.Host.CurrentPosition;
+            return host.CurrentPosition;
         }
     }
 }

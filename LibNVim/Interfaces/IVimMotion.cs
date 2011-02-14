@@ -8,9 +8,10 @@ namespace LibNVim.Interfaces
     interface IVimMotion : IVimAction
     {
         /// <summary>
-        /// motion move
+        /// moving in specified vim host
         /// </summary>
+        /// <param name="host"></param>
         /// <returns></returns>
-        VimPoint Move();
+        VimPoint Move(IVimHost host);
     }
 }

@@ -7,6 +7,11 @@ namespace LibNVim.Interfaces
 {
     public interface IVimEditionRedoable : IVimEdititon
     {
-        bool Redo();
+        /// <summary>
+        /// Editon should be redoable cross Vim Host
+        /// </summary>
+        /// <param name="host"></param>
+        /// <returns></returns>
+        bool Redo(IVimHost host);
     }
 }

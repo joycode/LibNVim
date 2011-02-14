@@ -22,7 +22,7 @@ namespace LibNVim.Modes
 
         private bool DoEdition(IVimEdititon edition)
         {
-            bool result = edition.Apply();
+            bool result = edition.Apply(this.Host);
             if (result) {
                 if (edition is IVimEditionRedoable) {
                     VimGlobalInfo.LastEdition = edition as IVimEditionRedoable;
@@ -79,7 +79,7 @@ namespace LibNVim.Modes
                 if (action != null) {
                     // TODO live with some actions unimplemented
                     if (action is IVimMotion) {
-                        (action as IVimMotion).Move();
+                        (action as IVimMotion).Move(this.Host);
                     }
                     else if (action is IVimEdititon) {
                         this.DoEdition(action as IVimEdititon);

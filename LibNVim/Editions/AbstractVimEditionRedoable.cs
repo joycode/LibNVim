@@ -13,9 +13,9 @@ namespace LibNVim.Editions
         {
         }
 
-        public virtual bool Redo()
+        public virtual bool Redo(IVimHost host)
         {
-            return this.Apply();
+            return this.Apply(host);
         }
     }
 }

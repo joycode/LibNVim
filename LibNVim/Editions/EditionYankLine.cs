@@ -15,22 +15,22 @@ namespace LibNVim.Editions
             _register = register;
         }
 
-        public override bool Apply()
+        public override bool Apply(Interfaces.IVimHost host)
         {
             VimSpan span = null;
             if (this.Repeat == 1) {
-                VimPoint from = new VimPoint(this.Host.CurrentPosition.X, 0);
-                VimPoint to = this.Host.CurrentLineEndPosition;
+                VimPoint from = new VimPoint(host.CurrentPosition.X, 0);
+                VimPoint to = host.CurrentLineEndPosition;
                 span = new VimSpan(from, to);
             }
             else {
-                VimPoint from = new VimPoint(this.Host.CurrentPosition.X, 0);
-                int dst_line = Math.Min(from.X + this.Repeat - 1, this.Host.TextLineCount - 1);
-                VimPoint to = this.Host.GetLineEndPosition(dst_line);
+                VimPoint from = new VimPoint(host.CurrentPosition.X, 0);
+                int dst_line = Math.Min(from.X + this.Repeat - 1, host.TextLineCount - 1);
+                VimPoint to = host.GetLineEndPosition(dst_line);
                 span = new VimSpan(from, to);
             }
 
-            _register.Remember(this.Host.GetText(span), true, this.Host);
+            _register.Remember(host.GetText(span), true, host);
 
             return true;
         }

@@ -12,10 +12,10 @@ namespace LibNVim.Motions
         {
         }
 
-        public override VimPoint Move()
+        public override VimPoint Move(Interfaces.IVimHost host)
         {
-            this.Host.MoveToStartOfDocument();
-            return this.Host.CurrentPosition;
+            host.MoveToStartOfDocument();
+            return host.CurrentPosition;
         }
     }
 }

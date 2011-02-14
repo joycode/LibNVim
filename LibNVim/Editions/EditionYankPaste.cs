@@ -15,9 +15,9 @@ namespace LibNVim.Editions
             _register = register;
         }
 
-        public override bool Apply()
+        public override bool Apply(Interfaces.IVimHost host)
         {
-            string reg_text = _register.GetText(this.Host);
+            string reg_text = _register.GetText(host);
             if (reg_text == null) {
                 return false;
             }
@@ -25,11 +25,11 @@ namespace LibNVim.Editions
             if (_register.IsTextLines) {
                 string text = reg_text;
                 for (int i = 0; i < (this.Repeat - 1); i++) {
-                    text = text + this.Host.LineBreak + reg_text;
+                    text = text + host.LineBreak + reg_text;
                 }
 
-                this.Host.OpenLineBelow();
-                this.Host.InsertTextAtCurrentPosition(text);
+                host.OpenLineBelow();
+                host.InsertTextAtCurrentPosition(text);
             }
             else {
                 string text = "";
@@ -37,13 +37,13 @@ namespace LibNVim.Editions
                     text = text + reg_text;
                 }
 
-                this.Host.CaretRight();
-                this.Host.InsertTextAtCurrentPosition(text);
+                host.CaretRight();
+                host.InsertTextAtCurrentPosition(text);
             }
 
-            if (this.Host.IsCurrentPositionAtEndOfLine()) {
-                this.Host.MoveToEndOfLine();
-                this.Host.CaretLeft();
+            if (host.IsCurrentPositionAtEndOfLine()) {
+                host.MoveToEndOfLine();
+                host.CaretLeft();
             }
 
             return true;

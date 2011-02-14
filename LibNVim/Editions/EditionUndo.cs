@@ -12,10 +12,10 @@ namespace LibNVim.Editions
         {
         }
 
-        public override bool Apply()
+        public override bool Apply(Interfaces.IVimHost host)
         {
             for (int i = 0; i < this.Repeat; i++) {
-                this.Host.Undo();
+                host.Undo();
             }
 
             return true;

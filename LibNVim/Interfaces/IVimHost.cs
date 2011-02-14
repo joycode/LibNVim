@@ -103,14 +103,14 @@ namespace LibNVim.Interfaces
         /// <param name="word"></param>
         /// <param name="wholeWord"></param>
         /// <returns></returns>
-        bool FindNextWord(string word, bool wholeWord);
+        bool FindNextWord(VimFindWordRecord findRecord);
         /// <summary>
         /// search word backward
         /// </summary>
         /// <param name="word"></param>
         /// <param name="wholeWord"></param>
         /// <returns></returns>
-        bool FindPreviousWord(string word, bool wholeWord);
+        bool FindPreviousWord(VimFindWordRecord findRecord);
 
         /// <summary>
         /// get position of the end of specifiled line

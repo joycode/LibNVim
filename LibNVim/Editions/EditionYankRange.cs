@@ -18,15 +18,15 @@ namespace LibNVim.Editions
             this.Motion = motion;
         }
 
-        public override bool Apply()
+        public override bool Apply(Interfaces.IVimHost host)
         {
             // in yank, we need not to move cursor to new moved position
-            VimPoint bak = this.Host.CurrentPosition;
+            VimPoint bak = host.CurrentPosition;
 
             VimPoint from = bak;
             VimPoint to = null;
             for (int i = 0; i < this.Repeat; i++) {
-                to = this.Motion.Move();
+                to = this.Motion.Move(host);
             }
 
             VimSpan span = null;
@@ -38,10 +38,10 @@ namespace LibNVim.Editions
 
                 if (this.Motion is Interfaces.IVimMotionNextWord) {
                     // "dw" on the last word of the line deletes to the end of the line
-                    if (this.Host.IsCurrentPositionAtStartOfLineText()) {
-                        this.Host.CaretUp();
-                        this.Host.MoveToEndOfLine();
-                        span = new VimSpan(from, this.Host.CurrentPosition);
+                    if (host.IsCurrentPositionAtStartOfLineText()) {
+                        host.CaretUp();
+                        host.MoveToEndOfLine();
+                        span = new VimSpan(from, host.CurrentPosition);
                     }
                 }
                 else if (this.Motion is Interfaces.IVimMotionEndOfWord) {
@@ -65,17 +65,17 @@ namespace LibNVim.Editions
                 }
             }
 
-            this.Host.MoveCursor(bak);
+            host.MoveCursor(bak);
 
             if (this.Motion is Interfaces.IVimMotionBetweenLines) {
                 from = new VimPoint(span.Start.X, 0);
-                to = this.Host.GetLineEndPosition(span.End.X);
+                to = host.GetLineEndPosition(span.End.X);
                 span = new VimSpan(from, to);
                 
-                _register.Remember(this.Host.GetText(span), true, this.Host);
+                _register.Remember(host.GetText(span), true, host);
             }
             else {
-                _register.Remember(this.Host.GetText(span), false, this.Host);
+                _register.Remember(host.GetText(span), false, host);
             }
 
             return true;

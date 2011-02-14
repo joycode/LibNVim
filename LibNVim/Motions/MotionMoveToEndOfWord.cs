@@ -12,13 +12,13 @@ namespace LibNVim.Motions
         {
         }
 
-        public override VimPoint Move()
+        public override VimPoint Move(Interfaces.IVimHost host)
         {
             for (int i = 0; i < this.Repeat; i++) {
-                this.Host.MoveToEndOfWord();
+                host.MoveToEndOfWord();
             }
 
-            return this.Host.CurrentPosition;
+            return host.CurrentPosition;
         }
     }
 }

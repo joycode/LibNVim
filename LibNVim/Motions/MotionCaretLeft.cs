@@ -14,13 +14,13 @@ namespace LibNVim.Motions
         {
         }
 
-        public override VimPoint Move()
+        public override VimPoint Move(IVimHost host)
         {
             for (int i = 0; i < this.Repeat; i++) {
-                this.Host.CaretLeft();
+                host.CaretLeft();
             }
 
-            return this.Host.CurrentPosition;
+            return host.CurrentPosition;
         }
 
     }

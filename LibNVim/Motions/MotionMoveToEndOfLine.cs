@@ -12,15 +12,15 @@ namespace LibNVim.Motions
         {
         }
 
-        public override VimPoint Move()
+        public override VimPoint Move(Interfaces.IVimHost host)
         {
             for (int i = 0; i < (this.Repeat - 1); i++) {
-                this.Host.CaretDown();
+                host.CaretDown();
             }
 
-            this.Host.MoveToEndOfLine();
-            this.Host.CaretLeft();
-            return this.Host.CurrentPosition;
+            host.MoveToEndOfLine();
+            host.CaretLeft();
+            return host.CurrentPosition;
         }
     }
 }

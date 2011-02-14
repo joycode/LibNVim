@@ -17,19 +17,19 @@ namespace LibNVim.Motions
         /// move to at most one cursor before the end of the line
         /// </summary>
         /// <returns></returns>
-        public override VimPoint Move()
+        public override VimPoint Move(IVimHost host)
         {
             for (int i = 0; i < this.Repeat; i++) {
-                this.Host.CaretRight();
+                host.CaretRight();
             }
 
-            if (this.Host.IsCurrentPositionAtEndOfLine())
+            if (host.IsCurrentPositionAtEndOfLine())
             {
                 // if at the end of the line, move back one cursor
-                this.Host.CaretLeft();
+                host.CaretLeft();
             }
 
-            return this.Host.CurrentPosition;
+            return host.CurrentPosition;
         }
     }
 }

@@ -12,18 +12,18 @@ namespace LibNVim.Motions
         {
         }
 
-        public override VimPoint Move()
+        public override VimPoint Move(Interfaces.IVimHost host)
         {
-            if (VimGlobalInfo.IncrementalSearchWord == null) {
-                this.Host.UpdateStatus("Error: No word to search");
-                return this.Host.CurrentPosition;
+            if (VimGlobalInfo.FindWordRecord == null) {
+                host.UpdateStatus("Error: No word to search");
+                return host.CurrentPosition;
             }
 
             for (int i = 0; i < this.Repeat; i++) {
-                this.Host.FindPreviousWord(VimGlobalInfo.IncrementalSearchWord, VimGlobalInfo.IsWholeWordSearch);
+                host.FindPreviousWord(VimGlobalInfo.FindWordRecord);
             }
 
-            return this.Host.CurrentPosition;
+            return host.CurrentPosition;
         }
     }
 }

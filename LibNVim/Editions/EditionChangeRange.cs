@@ -15,13 +15,13 @@ namespace LibNVim.Editions
             this.Motion = motion;
         }
 
-        protected override void OnBeforeInsert()
+        protected override void OnBeforeInsert(Interfaces.IVimHost host)
         {
-            VimPoint from = this.Host.CurrentPosition;
+            VimPoint from = host.CurrentPosition;
             VimPoint to = null;
 
             for (int i = 0; i < this.Repeat; i++) {
-                to = this.Motion.Move();
+                to = this.Motion.Move(host);
             }
 
             VimSpan span = null;
@@ -35,15 +35,15 @@ namespace LibNVim.Editions
                 if (this.Motion is Interfaces.IVimMotionNextWord) {
                     // last 'w' moves to the end of the word
                     do {
-                        this.Host.MoveToPreviousCharacter();
-                        char ch = this.Host.GetCharAtCurrentPosition();
+                        host.MoveToPreviousCharacter();
+                        char ch = host.GetCharAtCurrentPosition();
                         if (!char.IsWhiteSpace(ch)) {
                             break;
                         }
                     }
                     while (true);
 
-                    span = new VimSpan(from, this.Host.CurrentPosition).GetClosedEnd();
+                    span = new VimSpan(from, host.CurrentPosition).GetClosedEnd();
                 }
                 else if (this.Motion is Interfaces.IVimMotionEndOfWord) {
                     span = span.GetClosedEnd();
@@ -67,12 +67,12 @@ namespace LibNVim.Editions
             }
 
             if (this.Motion is Interfaces.IVimMotionBetweenLines) {
-                VimRegister.YankLineToDefaultRegister(this.Host, span);
-                this.Host.DeleteLineRange(span);
+                VimRegister.YankLineToDefaultRegister(host, span);
+                host.DeleteLineRange(span);
             }
             else {
-                VimRegister.YankRangeToDefaultRegister(this.Host, span);
-                this.Host.DeleteRange(span);
+                VimRegister.YankRangeToDefaultRegister(host, span);
+                host.DeleteRange(span);
             }
         }
     }

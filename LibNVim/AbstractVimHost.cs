@@ -59,8 +59,8 @@ namespace LibNVim
         public abstract bool FindLeftBrace(VimPoint startPosition, out VimPoint pos);
         public abstract bool FindRightBrace(VimPoint startPosition, out VimPoint pos);
 
-        public abstract bool FindNextWord(string word, bool wholeWord);
-        public abstract bool FindPreviousWord(string word, bool wholeWord);
+        public abstract bool FindNextWord(VimFindWordRecord findRecord);
+        public abstract bool FindPreviousWord(VimFindWordRecord findRecord);
 
         public abstract VimPoint GetLineEndPosition(int lineNumber);
 

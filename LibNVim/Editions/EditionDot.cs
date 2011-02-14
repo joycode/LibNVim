@@ -15,19 +15,19 @@ namespace LibNVim.Editions
         {
         }
 
-        public override bool Apply()
+        public override bool Apply(Interfaces.IVimHost host)
         {
             if (VimGlobalInfo.LastEdition != null) {
                 for (int i = 0; i < this.Repeat; i++) {
-                    if (!VimGlobalInfo.LastEdition.Redo()) {
+                    if (!VimGlobalInfo.LastEdition.Redo(host)) {
                         return false;
                     }
                 }
             }
 
-            if (this.Host.IsCurrentPositionAtEndOfLine()) {
-                this.Host.MoveToEndOfLine();
-                this.Host.CaretLeft();
+            if (host.IsCurrentPositionAtEndOfLine()) {
+                host.MoveToEndOfLine();
+                host.CaretLeft();
             }
 
             return true;

@@ -12,7 +12,7 @@ namespace LibNVim.Editions
         {
         }
 
-        protected override void OnBeforeInsert()
+        protected override void OnBeforeInsert(Interfaces.IVimHost host)
         {
         }
     }

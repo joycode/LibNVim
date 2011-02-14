@@ -19,23 +19,23 @@ namespace LibNVim.Motions
             _toSearch = toSearch;
         }
 
-        public override VimPoint Move()
+        public override VimPoint Move(Interfaces.IVimHost host)
         {
-            if (this.Host.IsCurrentPositionAtEndOfLine()) {
-                return this.Host.CurrentPosition;
+            if (host.IsCurrentPositionAtEndOfLine()) {
+                return host.CurrentPosition;
             }
 
-            VimPoint bak = this.Host.CurrentPosition;
+            VimPoint bak = host.CurrentPosition;
 
             for (int i = 0; i < this.Repeat; i++) {
                 do {
-                    if (this.Host.IsCurrentPositionAtEndOfLine()) {
-                        this.Host.MoveCursor(bak);
-                        return this.Host.CurrentPosition;
+                    if (host.IsCurrentPositionAtEndOfLine()) {
+                        host.MoveCursor(bak);
+                        return host.CurrentPosition;
                     }
 
-                    this.Host.CaretRight();
-                    char ch = this.Host.GetCharAtCurrentPosition();
+                    host.CaretRight();
+                    char ch = host.GetCharAtCurrentPosition();
 
                     if (ch == _toSearch) {
                         break;
@@ -44,7 +44,7 @@ namespace LibNVim.Motions
                 while (true);
             }
 
-            return this.Host.CurrentPosition;
+            return host.CurrentPosition;
         }
     }
 }

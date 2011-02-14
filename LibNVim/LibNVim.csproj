@@ -62,6 +62,7 @@
     <Compile Include="Editions\EditionYankLine.cs" />
     <Compile Include="Editions\EditionYankPaste.cs" />
     <Compile Include="Editions\EditionYankRange.cs" />
+    <Compile Include="Interfaces\IVimRepeatable.cs" />
     <Compile Include="Interfaces\IVimEditionInsertText.cs" />
     <Compile Include="Interfaces\IVimMotionEndOfLine.cs" />
     <Compile Include="Interfaces\IVimMotionEndOfWord.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Motions\MotionGotoCharFindPrevious.cs" />
     <Compile Include="Motions\MotionGotoCharFindNext.cs" />
     <Compile Include="Util\StringHelper.cs" />
+    <Compile Include="VimFindWordRecord.cs" />
     <Compile Include="VimGlobalInfo.cs" />
     <Compile Include="VimKeyInputEvaluation.cs" />
     <Compile Include="Modes\ModeInsert.cs" />

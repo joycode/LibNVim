@@ -9,7 +9,6 @@ namespace LibNVim
     class VimGlobalInfo
     {
         public static IVimEditionRedoable LastEdition = null;
-        public static string IncrementalSearchWord = null;
-        public static bool IsWholeWordSearch = false;
+        public static VimFindWordRecord FindWordRecord = null;
     }
 }

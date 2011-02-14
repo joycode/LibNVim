@@ -10,6 +10,6 @@ namespace LibNVim.Interfaces
         bool ModeSwitched { get; }
         IVimMode NewMode { get; }
 
-        bool Apply();
+        bool Apply(IVimHost host);
     }
 }

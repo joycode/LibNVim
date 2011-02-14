@@ -324,17 +324,20 @@ namespace NVimVS
             return true;
         }
 
-        public override bool FindNextWord(string word, bool wholeWord)
+        public override bool FindNextWord(VimFindWordRecord findRecord)
         {
             _editorOperations.MoveToNextCharacter(false);
 
             FindOptions opts = FindOptions.None;
-            if (wholeWord) {
+            if ((findRecord.Options & VimFindWordRecord.FindOptions.WholeWord) != 0) {
                 opts |= FindOptions.WholeWord;
+            }
+            if ((findRecord.Options & VimFindWordRecord.FindOptions.UserRegex) != 0) {
+                opts |= FindOptions.UseRegularExpressions;
             }
 
             SnapshotSpan? span = _textSearchService.FindNext(_textView.Caret.Position.BufferPosition.Position, true, 
-                (new FindData(word, _textView.TextSnapshot, opts, 
+                (new FindData(findRecord.Word, _textView.TextSnapshot, opts, 
                 _textStructureNavigatorSelectorService.GetTextStructureNavigator(_textView.TextBuffer))));
 
             if (!span.HasValue) {
@@ -348,15 +351,18 @@ namespace NVimVS
             return true;
         }
 
-        public override bool FindPreviousWord(string word, bool wholeWord)
+        public override bool FindPreviousWord(VimFindWordRecord findRecord)
         {
             FindOptions opts = FindOptions.SearchReverse;
-            if (wholeWord) {
+            if ((findRecord.Options & VimFindWordRecord.FindOptions.WholeWord) != 0) {
                 opts |= FindOptions.WholeWord;
+            }
+            if ((findRecord.Options & VimFindWordRecord.FindOptions.UserRegex) != 0) {
+                opts |= FindOptions.UseRegularExpressions;
             }
 
             SnapshotSpan? span = _textSearchService.FindNext(_textView.Caret.Position.BufferPosition.Position, true,
-                (new FindData(word, _textView.TextSnapshot, opts,
+                (new FindData(findRecord.Word, _textView.TextSnapshot, opts,
                 _textStructureNavigatorSelectorService.GetTextStructureNavigator(_textView.TextBuffer))));
 
             if (!span.HasValue) {

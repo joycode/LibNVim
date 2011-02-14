@@ -12,27 +12,27 @@ namespace LibNVim.Motions
         {
         }
 
-        public override VimPoint Move()
+        public override VimPoint Move(Interfaces.IVimHost host)
         {
-            if (this.Host.IsCurrentPositionAtEndOfDocument()) {
-                return this.Host.CurrentPosition;
+            if (host.IsCurrentPositionAtEndOfDocument()) {
+                return host.CurrentPosition;
             }
 
-            VimPoint start_pos = this.Host.CurrentPosition;
+            VimPoint start_pos = host.CurrentPosition;
             VimPoint pos = null;
 
             for (int i = 0; i < this.Repeat; i++) {
-                if (!this.Host.FindRightBrace(start_pos, out pos)) {
-                    return this.Host.CurrentPosition;
+                if (!host.FindRightBrace(start_pos, out pos)) {
+                    return host.CurrentPosition;
                 }
 
                 start_pos = pos;
             }
 
-            this.Host.GotoLine(pos.X);
-            this.Host.MoveCursor(pos);
+            host.GotoLine(pos.X);
+            host.MoveCursor(pos);
 
-            return this.Host.CurrentPosition;
+            return host.CurrentPosition;
         }
     }
 }

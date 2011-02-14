@@ -114,7 +114,7 @@ namespace LibNVim.Modes
                 this.Host.DismissDisplayWindows();
 
                 // keep consistency with Vim
-                new MotionCaretLeft(this.Host, 1).Move();
+                new MotionCaretLeft(this.Host, 1).Move(this.Host);
 
                 args.Handled = true;
             }

@@ -9,18 +9,15 @@ namespace LibNVim.Motions
 {
     abstract class AbstractVimMotion : IVimMotion
     {
-
-        public IVimHost Host { get; private set; }
         public int Repeat { get; private set; }
 
         protected AbstractVimMotion(IVimHost host, int repeat)
         {
             Debug.Assert(repeat != 0);
 
-            this.Host = host;
             this.Repeat = repeat;
         }
 
-        public abstract VimPoint Move();
+        public abstract VimPoint Move(IVimHost host);
     }
 }

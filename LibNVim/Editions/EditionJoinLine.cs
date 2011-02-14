@@ -12,16 +12,16 @@ namespace LibNVim.Editions
         {
         }
 
-        public override bool Apply()
+        public override bool Apply(Interfaces.IVimHost host)
         {
-            if (this.Host.IsCurrentPositionAtLastLine()) {
+            if (host.IsCurrentPositionAtLastLine()) {
                 return true;
             }
 
-            int begin_line = this.Host.CurrentPosition.X;
-            int end_line = Math.Min(begin_line + this.Repeat, this.Host.TextLineCount - 1);
+            int begin_line = host.CurrentPosition.X;
+            int end_line = Math.Min(begin_line + this.Repeat, host.TextLineCount - 1);
             
-            this.Host.JoinLines(begin_line, end_line);
+            host.JoinLines(begin_line, end_line);
 
             return true;
         }

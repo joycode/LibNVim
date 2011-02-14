@@ -8,9 +8,7 @@ namespace LibNVim.Interfaces
     /// <summary>
     /// every behaviours in vim: cursor motions, editions, modes switch
     /// </summary>
-    public interface IVimAction
+    public interface IVimAction : IVimRepeatable
     {
-        IVimHost Host { get; }
-        int Repeat { get; }
     }
 }

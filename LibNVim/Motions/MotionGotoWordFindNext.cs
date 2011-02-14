@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using System.Text;
+using System.Diagnostics;
 
 namespace LibNVim.Motions
 {
@@ -12,18 +13,18 @@ namespace LibNVim.Motions
         {
         }
 
-        public override VimPoint Move()
+        public override VimPoint Move(Interfaces.IVimHost host)
         {
-            if (VimGlobalInfo.IncrementalSearchWord == null) {
-                this.Host.UpdateStatus("Error: No word to search");
-                return this.Host.CurrentPosition;
+            if (VimGlobalInfo.FindWordRecord == null) {
+                host.UpdateStatus("Error: No word to search");
+                return host.CurrentPosition;
             }
 
             for (int i = 0; i < this.Repeat; i++) {
-                this.Host.FindNextWord(VimGlobalInfo.IncrementalSearchWord, VimGlobalInfo.IsWholeWordSearch);
+                host.FindNextWord(VimGlobalInfo.FindWordRecord);
             }
 
-            return this.Host.CurrentPosition;
+            return host.CurrentPosition;
         }
     }
 }
