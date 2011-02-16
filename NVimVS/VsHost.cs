@@ -731,6 +731,7 @@ namespace NVimVS
         public override void FormatLine()
         {
             this.SafeExecuteCommand("Edit.FormatSelection");
+            _editorOperations.ResetSelection();
         }
 
         public override void FormatLineRange(VimSpan span)
