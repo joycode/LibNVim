@@ -151,6 +151,7 @@ namespace NVimVS
 
             _textHistory.Undo(1);
 
+            _editorOperations.ResetSelection();
             if (this.IsCurrentPositionAtEndOfLine()) {
                 this.CaretLeft();
             }
@@ -164,6 +165,7 @@ namespace NVimVS
 
             _textHistory.Redo(1);
 
+            _editorOperations.ResetSelection();
             if (this.IsCurrentPositionAtEndOfLine()) {
                 this.CaretLeft();
             }
