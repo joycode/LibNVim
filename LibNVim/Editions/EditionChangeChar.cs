@@ -15,6 +15,11 @@ namespace LibNVim.Editions
         protected override void OnBeforeInsert(Interfaces.IVimHost host)
         {
             VimPoint from = host.CurrentPosition;
+            // when cursor is at the end of line, nothing to delete
+            if (from.Y == host.CurrentLineEndPosition.Y) {
+                return;
+            }
+
             VimPoint to = new VimPoint(from.X,
                 Math.Min(from.Y + this.Repeat - 1, host.CurrentLineEndPosition.Y - 1));
 
