@@ -38,13 +38,16 @@ namespace LibNVim.Editions
                     // the start point to test moving back
                     VimPoint anchor_pos = host.CurrentPosition;
 
-                    // last 'w' moves to the end of the word
-                    do {
-                        host.MoveToPreviousCharacter();
+                    char ch = host.GetCharAtCurrentPosition();
+                    while (char.IsWhiteSpace(ch)) {
+                        // last 'w' moves to the end of the word
                         if (host.CurrentPosition.X < to.X) {
-                            // moving back to previous(above) line, then stop at the end of this line
+                            // moving back to previous(above) line, then stop at the end of current line
                             // in case of "\r\n", use MoveToEndOfLine() to safely stop at the right position
                             host.MoveToEndOfLine();
+
+                            // adjust the cursor to one left char before the end of the line
+                            host.CaretLeft();
                             break;
                         }
 
@@ -54,12 +57,9 @@ namespace LibNVim.Editions
                             break;
                         }
 
-                        char ch = host.GetCharAtCurrentPosition();
-                        if (!char.IsWhiteSpace(ch)) {
-                            break;
-                        }
+                        host.MoveToPreviousCharacter();
+                        ch = host.GetCharAtCurrentPosition();
                     }
-                    while (true);
 
                     span = new VimSpan(from, host.CurrentPosition).GetClosedEnd();
                     if (span.Start.CompareTo(span.End) == 0) {
