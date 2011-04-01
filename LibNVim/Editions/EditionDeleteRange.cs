@@ -32,11 +32,18 @@ namespace LibNVim.Editions
                 span = new VimSpan(from, to);
 
                 if (this.Motion is Interfaces.IVimMotionNextWord) {
-                    // "dw" on the last word of the line deletes to the end of the line
                     if (host.IsCurrentPositionAtStartOfLineText()) {
-                        host.CaretUp();
-                        host.MoveToEndOfLine();
-                        span = new VimSpan(from, host.CurrentPosition);
+                        if (from.X < host.CurrentPosition.X) {
+                            // "dw" on the last word of the line deletes to the end of the line
+                            host.CaretUp();
+                            host.MoveToEndOfLine();
+                            span = new VimSpan(from, host.CurrentPosition);
+                            if (span.Start.CompareTo(span.End) == 0) {
+                                // adjust the cursor to one left char before the end of the line
+                                host.CaretLeft();
+                                return false;
+                            }
+                        }
                     }
                 }
                 else if (this.Motion is Interfaces.IVimMotionEndOfWord) {
@@ -70,6 +77,7 @@ namespace LibNVim.Editions
             }
 
             if (host.IsCurrentPositionAtEndOfLine()) {
+                // adjust the cursor to one left char before the end of the line
                 host.CaretLeft();
             }
 

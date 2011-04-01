@@ -33,9 +33,27 @@ namespace LibNVim.Editions
                 span = new VimSpan(from, to);
 
                 if (this.Motion is Interfaces.IVimMotionNextWord) {
+                    host.MoveToPreviousCharacter();
+
+                    // the start point to test moving back
+                    VimPoint anchor_pos = host.CurrentPosition;
+
                     // last 'w' moves to the end of the word
                     do {
                         host.MoveToPreviousCharacter();
+                        if (host.CurrentPosition.X < to.X) {
+                            // moving back to previous(above) line, then stop at the end of this line
+                            // in case of "\r\n", use MoveToEndOfLine() to safely stop at the right position
+                            host.MoveToEndOfLine();
+                            break;
+                        }
+
+                        // if backing to the "from" point, then we should not move back at all, return to "anchor_pos"
+                        if (host.CurrentPosition.CompareTo(from) <= 0) {
+                            host.MoveCursor(anchor_pos);
+                            break;
+                        }
+
                         char ch = host.GetCharAtCurrentPosition();
                         if (!char.IsWhiteSpace(ch)) {
                             break;
@@ -44,6 +62,9 @@ namespace LibNVim.Editions
                     while (true);
 
                     span = new VimSpan(from, host.CurrentPosition).GetClosedEnd();
+                    if (span.Start.CompareTo(span.End) == 0) {
+                        return;
+                    }
                 }
                 else if (this.Motion is Interfaces.IVimMotionEndOfWord) {
                     span = span.GetClosedEnd();
