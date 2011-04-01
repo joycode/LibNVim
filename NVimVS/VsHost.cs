@@ -705,19 +705,22 @@ namespace NVimVS
 
         public override void InsertTextAtCurrentPosition(string text)
         {
-            ITextEdit edit = _textView.TextBuffer.CreateEdit();
-            edit.Insert(_textView.Caret.Position.BufferPosition.Position, text);
-            edit.Apply();
+            using (ITextEdit edit = _textView.TextBuffer.CreateEdit())
+            {
+                edit.Insert(_textView.Caret.Position.BufferPosition.Position, text);
+                edit.Apply();
+            }
         }
 
         public override void InsertTextAtPosition(VimPoint pos, string text)
         {
-            ITextEdit edit = _textView.TextBuffer.CreateEdit();
+            using (ITextEdit edit = _textView.TextBuffer.CreateEdit())
+            {
+                SnapshotPoint editor_pos = this.TranslatePoint(pos);
+                edit.Insert(editor_pos.Position, text);
 
-            SnapshotPoint editor_pos = this.TranslatePoint(pos);
-            edit.Insert(editor_pos.Position, text);
-
-            edit.Apply();
+                edit.Apply();
+            }
         }
 
         public override void OpenLineAbove()
@@ -814,32 +817,36 @@ namespace NVimVS
         {
             Debug.Assert((beginLine < endLine) && (endLine < _textView.TextSnapshot.LineCount));
 
-            ITextEdit edit = _textView.TextBuffer.CreateEdit();
+            using (ITextEdit edit = _textView.TextBuffer.CreateEdit())
+            {
+                int pos = _textView.TextSnapshot.GetLineFromLineNumber(beginLine).End.Position + 1;
+                int loop = endLine - beginLine;
+                for (int i = (endLine - beginLine - 1); i >= 0; i--)
+                {
+                    ITextSnapshotLine line = _textView.TextSnapshot.GetLineFromLineNumber(beginLine + i);
+                    int line_break_start = line.End.Position;
+                    Span span = new Span(line_break_start, line.LineBreakLength);
+                    edit.Replace(span, " ");
 
-            int pos = _textView.TextSnapshot.GetLineFromLineNumber(beginLine).End.Position + 1;
-            int loop = endLine - beginLine;
-            for (int i = (endLine - beginLine - 1); i >= 0; i--) {
-                ITextSnapshotLine line = _textView.TextSnapshot.GetLineFromLineNumber(beginLine + i);
-                int line_break_start = line.End.Position;
-                Span span = new Span(line_break_start, line.LineBreakLength);
-                edit.Replace(span, " ");
-
-                int line_break_end = line.EndIncludingLineBreak.Position;
-                pos = line_break_end;
-                char ch = new SnapshotPoint(_textView.TextSnapshot, pos).GetChar();
-                while (char.IsWhiteSpace(ch)) {
-                    if (ch == '\r' || ch == '\n') {
-                        // not overflow to next line
-                        break;
+                    int line_break_end = line.EndIncludingLineBreak.Position;
+                    pos = line_break_end;
+                    char ch = new SnapshotPoint(_textView.TextSnapshot, pos).GetChar();
+                    while (char.IsWhiteSpace(ch))
+                    {
+                        if (ch == '\r' || ch == '\n')
+                        {
+                            // not overflow to next line
+                            break;
+                        }
+                        pos++;
+                        ch = new SnapshotPoint(_textView.TextSnapshot, pos).GetChar();
                     }
-                    pos++;
-                    ch = new SnapshotPoint(_textView.TextSnapshot, pos).GetChar();
+                    span = new Span(line_break_end, pos - line_break_end);
+                    edit.Replace(span, " ");
                 }
-                span = new Span(line_break_end, pos - line_break_end);
-                edit.Replace(span, " ");
-            }
 
-            edit.Apply();
+                edit.Apply();
+            }
         }
 
         public override void ScrollLineCenter()
