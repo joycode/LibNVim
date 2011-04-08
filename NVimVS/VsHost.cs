@@ -450,7 +450,8 @@ namespace NVimVS
             Debug.Assert(pos.X < _textView.TextSnapshot.LineCount);
             ITextSnapshotLine line = _textView.TextSnapshot.GetLineFromLineNumber(pos.X);
 
-            Debug.Assert(pos.Y < (line.Length + 1));
+            // max will be line end
+            Debug.Assert(pos.Y <= (line.Length + 1));
             int dst_pos = line.Start.Position + pos.Y;
 
             return new SnapshotPoint(_textView.TextSnapshot, dst_pos);
@@ -475,8 +476,6 @@ namespace NVimVS
         {
             if (span.StartClosed && span.EndClosed) {
                 SnapshotPoint from = this.TranslatePoint(span.Start);
-
-                Debug.Assert(!this.IsPositionAtEndOfLine(span.End));
                 SnapshotPoint to = this.TranslatePoint(new VimPoint(span.End.X, span.End.Y + 1));
 
                 return new SnapshotSpan(from, to);

@@ -2,8 +2,8 @@
 <Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
   <Identifier Id="NVimVS.Microsoft.e6f5d34e-0768-452b-baaf-9b3f48cf6b90">
     <Name>NVimVS</Name>
-    <Author>Joy</Author>
-    <Version>1.0</Version>
+    <Author>JoyCode</Author>
+    <Version>1.0.0.0</Version>
     <Description xml:space="preserve">Vim Keystroke Emulation Plugin For Visual Studio 2010 TextEditor.</Description>
     <Locale>1033</Locale>
     <SupportedProducts>

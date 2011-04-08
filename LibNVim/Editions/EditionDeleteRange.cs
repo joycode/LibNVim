@@ -37,12 +37,14 @@ namespace LibNVim.Editions
                             // "dw" on the last word of the line deletes to the end of the line
                             host.CaretUp();
                             host.MoveToEndOfLine();
-                            span = new VimSpan(from, host.CurrentPosition);
-                            if (span.Start.CompareTo(span.End) == 0) {
+                            if (from.CompareTo(host.CurrentPosition) >= 0) {
+                                // delete action begins at the line end
                                 // adjust the cursor to one left char before the end of the line
                                 host.CaretLeft();
-                                return false;
+                                return true;
                             }
+
+                            span = new VimSpan(from, host.CurrentPosition);
                         }
                     }
                 }

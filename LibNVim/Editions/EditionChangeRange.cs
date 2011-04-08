@@ -45,10 +45,13 @@ namespace LibNVim.Editions
                             // moving back to previous(above) line, then stop at the end of current line
                             // in case of "\r\n", use MoveToEndOfLine() to safely stop at the right position
                             host.MoveToEndOfLine();
-
-                            // adjust the cursor to one left char before the end of the line
-                            host.CaretLeft();
-                            break;
+                            if (from.CompareTo(host.CurrentPosition) >= 0) {
+                                // change action begins at the line end, just return
+                                return;
+                            }
+                            else {
+                                break;
+                            }
                         }
 
                         // if backing to the "from" point, then we should not move back at all, return to "anchor_pos"
@@ -62,9 +65,6 @@ namespace LibNVim.Editions
                     }
 
                     span = new VimSpan(from, host.CurrentPosition).GetClosedEnd();
-                    if (span.Start.CompareTo(span.End) == 0) {
-                        return;
-                    }
                 }
                 else if (this.Motion is Interfaces.IVimMotionEndOfWord) {
                     span = span.GetClosedEnd();
